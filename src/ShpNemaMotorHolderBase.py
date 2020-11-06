@@ -353,11 +353,8 @@ class ShpNemaMotorHolderBase(shp_clss.Obj3D):
         
         parts.append(shp_motorholder)
 
-
-        
         shp_parts = fcfun.fuseshplist(parts)
         self.shp = shp_parts
-
 
 doc = FreeCAD.newDocument()
 shpob_nema = ShpNemaMotorHolderBase(nema_size = 17, base_motor_d = 8., base_d = 6., base_h = 16., wall_thick = 6., motor_thick = 6., reinf_thick = 1., motor_min_h =10., motor_max_h =50., rail = 1, motor_xtr_space = 3., bolt_wall_d = 4., bolt1_wall_d = 5., chmf_r = 1., axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1,  pos_d = 3, pos_w = 0, pos = V0)
