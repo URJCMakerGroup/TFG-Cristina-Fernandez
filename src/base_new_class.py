@@ -348,12 +348,14 @@ class base(Obj3D):
             shp_box_lat2 = fcfun.shp_box_dir(box_w = 2 * + self.bolthead_r_tol + 4., box_d = self.tot_d, box_h = self.tot_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(0, 4, 1))
             super().add_child(shp_box_lat2, 0, 'shp_box_lat2')
             
-            # holes to hold the profile
-            shp_hole1 = fcfun.shp_stadium_dir(3 * self.bolthead_r/2. - TOL, radius = self.boltshank_r_tol, height = 2 * wall_thick, fc_axis_h = self.axis_h, fc_axis_l = self.axis_d, fc_axis_s = V0, ref_l = 1, ref_s = 1, ref_h = 1, xtr_nh = 1, pos = self.get_pos_dwh(3, -4, 0))
+           
+            # holes to hold the profile # self.get_d_ab(5,4).x
+            shp_hole1 = fcfun.shp_stadium_dir(self.tot_d-2*((self.d_o[5]-self.d_o[4]).Length ), radius = self.boltshank_r_tol, height = wall_thick, fc_axis_h = self.axis_h, fc_axis_l = self.axis_d.negative(), fc_axis_s = V0, ref_l = 2, ref_s = 1, ref_h = 2, xtr_nh = 1, pos = self.get_pos_dwh(4, -4, 0))
             super().add_child(shp_hole1, 0, 'shp_hole1')
             
-            shp_hole2 = fcfun.shp_stadium_dir(3 * self.bolthead_r/2. - TOL, radius = self.boltshank_r_tol, height = 2 * wall_thick, fc_axis_h = self.axis_h, fc_axis_l = self.axis_d, fc_axis_s = V0, ref_l = 1, ref_s = 1, ref_h = 1, xtr_nh = 1, pos = self.get_pos_dwh(3, 4, 0))
+            shp_hole2 = fcfun.shp_stadium_dir(self.tot_d-2*((self.d_o[5]-self.d_o[4]).Length ), radius = self.boltshank_r_tol, height = wall_thick, fc_axis_h = self.axis_h, fc_axis_l = self.axis_d.negative(), fc_axis_s = V0, ref_l = 2, ref_s = 1, ref_h = 2, xtr_nh = 1, pos = self.get_pos_dwh(4, 4, 0))
             super().add_child(shp_hole2, 0, 'shp_hole2')
+            
         
             shp_hole3 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(4, -2, 0)) 
             super().add_child(shp_hole3, 0, 'shp_hole3')
