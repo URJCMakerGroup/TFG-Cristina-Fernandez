@@ -406,7 +406,6 @@ class base(Obj3D):
 
         fuse = []
         fuse.append(self.shp)
-        #chmf_reinf_r = min(wall_thick - TOL, 2 * self.bolthead_r - )
         shp_box_ref = fcfun.shp_box_dir(box_w = 2 * self.bolthead_r, box_d = 2 * self.bolthead_r, box_h = 2 * self.bolthead_r, fc_axis_w = self.axis_w, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(1, 0, 1))
         shp_box_ref = fcfun.shp_filletchamfer_dirpt(shp_box_ref, self.axis_w, fc_pt = self.get_pos_dwh(5, 0, 2), fillet = 0, radius = 2 * self.bolthead_r - TOL)
         fuse.append(shp_box_ref)
