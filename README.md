@@ -12,7 +12,7 @@
 
 - ##### [Base](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/base_class.py)
 
-[base_class](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/img/base_class.PNG)
+[](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/img/base_class.PNG)
 
 - ##### [Board](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/board_class.py)
 
