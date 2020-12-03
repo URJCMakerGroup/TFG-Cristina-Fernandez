@@ -1,9 +1,10 @@
-# TFG Cristina Fernandez
+# TFG Cristina Fernández
 
 ## Organización de las carpetas:
 
 - FreeCAD: archivo creado por FreeCAD
 - comps: copia del reposiorio fcad-comps de Felipe Machado
+- img: imágenes de las piezas
 - src: código fuente
 - step: archivo de modelo 3D formateado en STEP
 - stl: archivo de modelo 3D en formato estándar que puede ser leído epor múltiples aplicaciones CAD
