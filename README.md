@@ -12,13 +12,11 @@
 
 - ##### [Base](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/base_class.py)
 
-[](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/img/base_class.PNG)
+[base_class](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/img/base_class.PNG)
 
 - ##### [Board](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/board_class.py)
 
 [board_class](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/img/board_class.PNG)
-
-
 
 
 
