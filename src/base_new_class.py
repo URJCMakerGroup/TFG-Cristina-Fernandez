@@ -418,4 +418,4 @@ class base(Obj3D):
         self.fco.Placement.Base = self.position
 
 doc = FreeCAD.newDocument()
-shpob_base = base(nema_size = 17, base_motor_d = 14., base_d = 10.75, base_h = 25., wall_thick = 6., motor_thick = 6., reinf_thick = 1., motor_min_h =10., motor_max_h =50., motor_xtr_space = 3., bolt_wall_d = 4., bolt1_wall_d = 5., bolt_wall_sep = 30., chmf_r = 1., opt_sides = 1, axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 0,  pos_d = 0, pos_w = 0, pos = V0)
+shpob_base = base(nema_size = 17, base_motor_d = 14., base_d = 10.75, base_h = 25., wall_thick = 6., motor_thick = 6., reinf_thick = 1., motor_min_h =10., motor_max_h =50., motor_xtr_space = 3., bolt_wall_d = 4., bolt1_wall_d = 5., bolt_wall_sep = 30., chmf_r = 1., opt_sides = 1, axis_h = VX, axis_d = VZ, axis_w = None, pos_h = 0,  pos_d = 0, pos_w = 0, pos = V0)
