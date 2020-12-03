@@ -10,11 +10,11 @@
 
 ## Piezas:
 
-- ##### [Base](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/base_class.py)
+- ### [Base](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/base_class.py)
 
 ![base_class](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/img/base_class.PNG)
 
-- ##### [Board](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/board_class.py)
+- ### [Board](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/board_class.py)
 
 [](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/img/board_class.PNG)
 
