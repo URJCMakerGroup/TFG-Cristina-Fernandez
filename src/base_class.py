@@ -288,129 +288,90 @@ class base(Obj3D):
         # make the whole box
         if opt_sides == 0:
             shp_box = fcfun.shp_box_dir(box_w = self.tot_w, box_d = self.tot_d, box_h = self.tot_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.pos_o)
-            super().add_child(shp_box, 1, 'shp_box')
 
+            cut = []
+            
             shp_box_int = fcfun.shp_box_dir(box_w = self.tot_w, box_d = self.tot_d, box_h = base_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(1, 0, 1))
-            super().add_child(shp_box_int, 0, 'shp_box_int')
+            cut.append(shp_box_int)
 
             shp_box_ext = fcfun.shp_box_dir(box_w = self.tot_w, box_d = self.tot_d, box_h = self.base_motor_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(2, 0, 3))
-            super().add_child(shp_box_ext, 0, 'shp_box_ext')
+            cut.append(shp_box_ext)
         
             shp_box_init = fcfun.shp_box_dir(box_w = self.tot_w + 2 * self.bolthead_r_tol, box_d = self.tot_d, box_h = wall_thick, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(5, 0, 0))
-            super().add_child(shp_box_init, 0, 'shp_box_init')
+            cut.append(shp_box_init)
         
             # holes to hold the profile
-            shp_hole1 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(4, -2, 0)) 
-            super().add_child(shp_hole1, 0, 'shp_hole1')
-            shp_hole2 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(4, 2, 0)) 
-            super().add_child(shp_hole2, 0, 'shp_hole2')
+            for pt_w in (-2, 2):
+                shp_hole1 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(4, pt_w, 0)) 
+                cut.append(shp_hole)
 
             # holes to hold the Nema Motor Holder
-            shp_cen_bolt1 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 6))
-            super().add_child(shp_cen_bolt1, 0, 'shp_cen_bolt1')
-            shp_cen_bolt2 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 6))
-            super().add_child(shp_cen_bolt2, 0, 'shp_cen_bolt2')
-            shp_cen_bolt3 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 7))
-            super().add_child(shp_cen_bolt3, 0, 'shp_cen_bolt3')
-            shp_cen_bolt4 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 7))
-            super().add_child(shp_cen_bolt4, 0, 'shp_cen_bolt4')
-            shp_cen_bolt5 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 8))
-            super().add_child(shp_cen_bolt5, 0, 'shp_cen_bolt5')
-            shp_cen_bolt6 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 8))
-            super().add_child(shp_cen_bolt6, 0, 'shp_cen_bolt6')
-            shp_cen_bolt7 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 9))
-            super().add_child(shp_cen_bolt7, 0, 'shp_cen_bolt7')
-            shp_cen_bolt8 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 9))
-            super().add_child(shp_cen_bolt8, 0, 'shp_cen_bolt8')
-            shp_cen_bolt9 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 10))
-            super().add_child(shp_cen_bolt9, 0, 'shp_cen_bolt9')
-            shp_cen_bolt10 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 10))
-            super().add_child(shp_cen_bolt10, 0, 'shp_cen_bolt10')
-            shp_cen_bolt11 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 11))
-            super().add_child(shp_cen_bolt11, 0, 'shp_cen_bolt11')
-            shp_cen_bolt12 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 11))
-            super().add_child(shp_cen_bolt12, 0, 'shp_cen_bolt12')
+            for pt_w in (-1, 1):
+                for pt_h in (6, 7, 8, 9, 10, 11):
+                    shp_cen_bolt = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, pt_w, pt_h))
+                    cut.append(shp_cen_bolt)
+
+            shp_cut = fcfun.fuseshplist(cut)
+            shp_final = shp_box.cut(shp_cut)
         else:
             shp_box = fcfun.shp_box_dir(box_w = self.tot_w, box_d = self.tot_d, box_h = self.tot_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.pos_o)
-            super().add_child(shp_box, 1, 'shp_box')
+
+            cut = []
 
             shp_box_int = fcfun.shp_box_dir(box_w = self.tot_w, box_d = self.tot_d, box_h = base_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(1, 0, 1))
-            super().add_child(shp_box_int, 0, 'shp_box_int')
+            cut.append(shp_box_int)
 
             shp_box_ext = fcfun.shp_box_dir(box_w = self.tot_w, box_d = self.tot_d, box_h = self.base_motor_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(2, 0, 3))
-            super().add_child(shp_box_ext, 0, 'shp_box_ext')
+            cut.append(shp_box_ext)
         
             shp_box_init = fcfun.shp_box_dir(box_w = self.tot_w, box_d = self.tot_d, box_h = wall_thick, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(5, 0, 0))
-            super().add_child(shp_box_init, 0, 'shp_box_init')
+            cut.append(shp_box_init)
 
-            shp_box_lat1 = fcfun.shp_box_dir(box_w = 2 * + self.bolthead_r_tol + 4., box_d = self.tot_d, box_h = self.tot_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(0, -4, 1))
-            super().add_child(shp_box_lat1, 0, 'shp_box_lat1')
-            shp_box_lat2 = fcfun.shp_box_dir(box_w = 2 * + self.bolthead_r_tol + 4., box_d = self.tot_d, box_h = self.tot_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(0, 4, 1))
-            super().add_child(shp_box_lat2, 0, 'shp_box_lat2')
-            
+            for pt_w in (-4, 4):
+                shp_box_lat = fcfun.shp_box_dir(box_w = 2 * + self.bolthead_r_tol + 4., box_d = self.tot_d, box_h = self.tot_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(0, pt_w, 1))
+                cut.append(shp_box_lat)            
            
-            # holes to hold the profile # self.get_d_ab(5,4).x
-            shp_hole1 = fcfun.shp_stadium_dir(self.tot_d-2*((self.d_o[5]-self.d_o[4]).Length ), radius = self.boltshank_r_tol, height = wall_thick, fc_axis_h = self.axis_h, fc_axis_l = self.axis_d.negative(), fc_axis_s = V0, ref_l = 2, ref_s = 1, ref_h = 2, xtr_nh = 1, pos = self.get_pos_dwh(4, -4, 0))
-            super().add_child(shp_hole1, 0, 'shp_hole1')
-            
-            shp_hole2 = fcfun.shp_stadium_dir(self.tot_d-2*((self.d_o[5]-self.d_o[4]).Length ), radius = self.boltshank_r_tol, height = wall_thick, fc_axis_h = self.axis_h, fc_axis_l = self.axis_d.negative(), fc_axis_s = V0, ref_l = 2, ref_s = 1, ref_h = 2, xtr_nh = 1, pos = self.get_pos_dwh(4, 4, 0))
-            super().add_child(shp_hole2, 0, 'shp_hole2')
-            
-        
-            shp_hole3 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(4, -2, 0)) 
-            super().add_child(shp_hole3, 0, 'shp_hole3')
-            shp_hole4 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(4, 2, 0)) 
-            super().add_child(shp_hole4, 0, 'shp_hole4')
+            # holes to hold the profile 
+            for pt_w in (-4, 4):
+                shp_stadium = fcfun.shp_stadium_dir(self.tot_d-2*((self.d_o[5]-self.d_o[4]).Length ), radius = self.boltshank_r_tol, height = wall_thick, fc_axis_h = self.axis_h, fc_axis_l = self.axis_d.negative(), fc_axis_s = V0, ref_l = 2, ref_s = 1, ref_h = 2, xtr_nh = 1, pos = self.get_pos_dwh(4, pt_w, 0))
+                cut.append(shp_stadium)
+
+            for pt_w in(-2, 2):
+                shp_hole = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(4, pt_w, 0)) 
+                cut.append(shp_hole)
 
             # holes to hold the Nema Motor Holder
-            shp_cen_bolt1 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 6))
-            super().add_child(shp_cen_bolt1, 0, 'shp_cen_bolt1')
-            shp_cen_bolt2 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 6))
-            super().add_child(shp_cen_bolt2, 0, 'shp_cen_bolt2')
-            shp_cen_bolt3 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 7))
-            super().add_child(shp_cen_bolt3, 0, 'shp_cen_bolt3')
-            shp_cen_bolt4 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 7))
-            super().add_child(shp_cen_bolt4, 0, 'shp_cen_bolt4')
-            shp_cen_bolt5 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 8))
-            super().add_child(shp_cen_bolt5, 0, 'shp_cen_bolt5')
-            shp_cen_bolt6 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 8))
-            super().add_child(shp_cen_bolt6, 0, 'shp_cen_bolt6')
-            shp_cen_bolt7 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 9))
-            super().add_child(shp_cen_bolt7, 0, 'shp_cen_bolt7')
-            shp_cen_bolt8 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 9))
-            super().add_child(shp_cen_bolt8, 0, 'shp_cen_bolt8')
-            shp_cen_bolt9 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 10))
-            super().add_child(shp_cen_bolt9, 0, 'shp_cen_bolt9')
-            shp_cen_bolt10 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 10))
-            super().add_child(shp_cen_bolt10, 0, 'shp_cen_bolt10')
-            shp_cen_bolt11 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, -1, 11))
-            super().add_child(shp_cen_bolt11, 0, 'shp_cen_bolt11')
-            shp_cen_bolt12 = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, 1, 11))
-            super().add_child(shp_cen_bolt12, 0, 'shp_cen_bolt12')
+            for pt_w in (-1, 1):
+                for pt_h in (6, 7, 8, 9, 10, 11):
+                    shp_cen_bolt = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = base_motor_d, r_head = self.boltwallhead_r, l_head = self.boltwallhead_l, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_d, pos_n = 0, pos = self.get_pos_dwh(0, pt_w, pt_h))
+                    cut.append(shp_cen_bolt)
+
+            shp_cut = fcfun.fuseshplist(cut)
+            shp_final = shp_box.cut(shp_cut)
         
-        super().make_parent(name)
         chmf_reinf_r = min(base_motor_d - base_d, base_h)
-        self.shp = fcfun.shp_filletchamfer_dirpt(self.shp, self.axis_w, fc_pt = self.get_pos_dwh(2, 0, 3), fillet = 0, radius = (chmf_reinf_r - TOL))
+        shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_w, fc_pt = self.get_pos_dwh(2, 0, 3), fillet = 0, radius = (chmf_reinf_r - TOL))
+        
         if opt_sides == 0:
             for pt_w in (-3, 3):
                 for pt_h in (0, 13):
-                    self.shp = fcfun.shp_filletchamfer_dirpt(self.shp, self.axis_d, fc_pt = self.get_pos_dwh(0, pt_w, pt_h), fillet = 1, radius = chmf_r)
-                self.shp = fcfun.shp_filletchamfer_dirpt(self.shp, self.axis_d, fc_pt = self.get_pos_dwh(5, pt_w, 1), fillet = 1, radius = chmf_r)
+                    shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_d, fc_pt = self.get_pos_dwh(0, pt_w, pt_h), fillet = 1, radius = chmf_r)
+                shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_d, fc_pt = self.get_pos_dwh(5, pt_w, 1), fillet = 1, radius = chmf_r)
         else:
             for pt_w in (-5, 5):
                 for pt_h in (0, 1):
-                    self.shp = fcfun.shp_filletchamfer_dirpt(self.shp, self.axis_d, fc_pt = self.get_pos_dwh(0, pt_w, pt_h), fillet = 1, radius = chmf_r)
+                    shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_d, fc_pt = self.get_pos_dwh(0, pt_w, pt_h), fillet = 1, radius = chmf_r)
             for pt_w in (-3, 3):
                 for pt_h in (1, 13):
-                    self.shp = fcfun.shp_filletchamfer_dirpt(self.shp, self.axis_d, fc_pt = self.get_pos_dwh(0, pt_w, pt_h), fillet = 1, radius = chmf_r)
+                    shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_d, fc_pt = self.get_pos_dwh(0, pt_w, pt_h), fillet = 1, radius = chmf_r)
 
         fuse = []
-        fuse.append(self.shp)
+        fuse.append(shp_final)
         shp_box_ref = fcfun.shp_box_dir(box_w = 2 * self.bolthead_r, box_d = 2 * self.bolthead_r, box_h = 2 * self.bolthead_r, fc_axis_w = self.axis_w, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(1, 0, 1))
         shp_box_ref = fcfun.shp_filletchamfer_dirpt(shp_box_ref, self.axis_w, fc_pt = self.get_pos_dwh(5, 0, 2), fillet = 0, radius = 2 * self.bolthead_r - TOL)
         fuse.append(shp_box_ref)
-        shp_final = fcfun.fuseshplist(fuse)
-        self.shp = shp_final
+        shp_final_ref = fcfun.fuseshplist(fuse)
+        self.shp = shp_final_ref
 
         # Then the Part
         super().create_fco(name)

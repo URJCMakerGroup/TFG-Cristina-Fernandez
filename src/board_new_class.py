@@ -98,7 +98,7 @@ class board(Obj3D):
     pos: FreeCAD.Vector
         position of the holder (considering ref_axis)
     """
-    def __init__(self, alusize_d= 50., alusize_w=30., alusize_h = 50., dist_alu = 30., wall_thick = 4., bolt_wall_d = 4., opt_sides = 1, axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1, pos_d = 3, pos_w = 0, pos = V0, name = ''):
+    def __init__(self, alusize_d= 50., alusize_w=30., alusize_h = 50., dist_alu = 30., wall_thick = 4., bolt_wall_d = 4., opt_sides = 1, chmf_r =1., axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1, pos_d = 3, pos_w = 0, pos = V0, name = ''):
         if axis_w is None or axis_w == V0:
            axis_w = axis_h.cross(axis_d) #vector product
         
@@ -127,14 +127,12 @@ class board(Obj3D):
         self.bolthead_l_tol = kcomp.D912[bolt_wall_d]['head_l_tol']
 
         # making the big box that will contain everything and will be cut
+        self.tot_w = alusize_w
+        self.tot_h = wall_thick + alusize_h/2.
         if opt_sides == 0:
             self.tot_d = 2 * alusize_d + dist_alu
-            self.tot_w = 4 * self.bolthead_r_tol
-            self.tot_h = wall_thick + alusize_h/2.
         else:
             self.tot_d = 2 * wall_thick + 2 * alusize_d + dist_alu
-            self.tot_w = 4 * self.bolthead_r_tol
-            self.tot_h = wall_thick + alusize_h/2.
 
         # definition of which axis is symmetrical
         self.h0_cen = 0
@@ -149,24 +147,30 @@ class board(Obj3D):
         # position along axis_d
         if opt_sides == 0:
             self.d_o[0] = V0
-            self.d_o[1] = self.vec_d(alusize_d/2.)
-            self.d_o[2] = self.vec_d(alusize_d)
-            self.d_o[3] = self.vec_d(alusize_d + dist_alu)
-            self.d_o[4] = self.vec_d(alusize_d + dist_alu + alusize_d/2.)
-            self.d_o[5] = self.vec_d(self.tot_d)
+            self.d_o[1] = self.vec_d(alusize_d/4.)
+            self.d_o[2] = self.vec_d(3 * alusize_d/4.)
+            self.d_o[3] = self.vec_d(alusize_d + TOL)
+            self.d_o[4] = self.vec_d(alusize_d + dist_alu/2.)
+            self.d_o[5] = self.vec_d(alusize_d + dist_alu - TOL)
+            self.d_o[6] = self.vec_d(alusize_d + dist_alu + alusize_d/4.)
+            self.d_o[7] = self.vec_d(alusize_d + dist_alu + 3 * alusize_d/4.)
+            self.d_o[8] = self.vec_d(self.tot_d)
         else:
             self.d_o[0] = V0
-            self.d_o[1] = self.vec_d(wall_thick)
-            self.d_o[2] = self.vec_d(wall_thick + alusize_d/2.)
-            self.d_o[3] = self.vec_d(wall_thick + alusize_d)
-            self.d_o[4] = self.vec_d(wall_thick + alusize_d + dist_alu)
-            self.d_o[5] = self.vec_d(wall_thick + alusize_d + dist_alu + alusize_d/2.)
-            self.d_o[6] = self.vec_d(wall_thick + alusize_d + dist_alu + alusize_d)
-            self.d_o[7] = self.vec_d(self.tot_d)
+            self.d_o[1] = self.vec_d(wall_thick - TOL)
+            self.d_o[2] = self.vec_d(wall_thick + alusize_d/4.)
+            self.d_o[3] = self.vec_d(wall_thick + 3 * alusize_d/4.)
+            self.d_o[4] = self.vec_d(wall_thick + alusize_d + TOL)
+            self.d_o[5] = self.vec_d(wall_thick + alusize_d + dist_alu/2.)
+            self.d_o[6] = self.vec_d(wall_thick + alusize_d + dist_alu - TOL)
+            self.d_o[7] = self.vec_d(wall_thick + alusize_d + dist_alu + alusize_d/4.)
+            self.d_o[8] = self.vec_d(wall_thick + alusize_d + dist_alu + 3 * alusize_d/4.)
+            self.d_o[9] = self.vec_d(wall_thick + alusize_d + dist_alu + alusize_d + TOL)
+            self.d_o[10] = self.vec_d(self.tot_d)
 
         # vectors from the origin to the points along axis_w
         self.w_o[0] = V0
-        self.w_o[1] = self.vec_w(-self.bolthead_r_tol)
+        self.w_o[1] = self.vec_w(-(alusize_w/2. - 5.))
         self.w_o[2] = self.vec_w(-self.tot_w/2.)
 
         # calculates the position of the origin, and keeps it in attribute pos_o
@@ -180,40 +184,77 @@ class board(Obj3D):
             # make the shape of the piece
             cut_box1 = fcfun.shp_box_dir(box_w = self.tot_w, box_d = alusize_d + TOL, box_h = alusize_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(0, 0, 1))
             super().add_child(cut_box1, 0, 'cut_box1')
-            cut_box2 = fcfun.shp_box_dir(box_w = self.tot_w, box_d = alusize_d + TOL, box_h = alusize_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(3, 0, 1))
+            cut_box2 = fcfun.shp_box_dir(box_w = self.tot_w, box_d = alusize_d + TOL, box_h = alusize_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(5, 0, 1))
             super().add_child(cut_box2, 0, 'cut_box2')
 
             # holes to hold the profile 
-            cut_hole1 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(1, -1, 0))
+            cut_hole1 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(1, -1, 0))
             super().add_child(cut_hole1, 0, 'cut_hole1')
-            cut_hole2 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(1, 1, 0))
+            cut_hole2 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(1, 1, 0))
             super().add_child(cut_hole2, 0, 'cut_hole2')
-            cut_hole3 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(4, -1, 0))
+            cut_hole3 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(2, -1, 0))
             super().add_child(cut_hole3, 0, 'cut_hole3')
-            cut_hole4 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(4, 1, 0))
+            cut_hole4 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(2, 1, 0))
             super().add_child(cut_hole4, 0, 'cut_hole4')
+            cut_hole5 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(6, -1, 0))
+            super().add_child(cut_hole5, 0, 'cut_hole5')
+            cut_hole6 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(6, 1, 0))
+            super().add_child(cut_hole6, 0, 'cut_hole6')
+            cut_hole7 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(7, 1, 0))
+            super().add_child(cut_hole7, 0, 'cut_hole7')
+            cut_hole8 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(7, -1, 0))
+            super().add_child(cut_hole8, 0, 'cut_hole8')
+
+            # holes to hold de screw
+
+            hole1 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = self.tot_h, r_head = self.bolthead_r_tol, l_head = 13 * self.tot_h/20., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h.negative(), pos_n = 0, pos = self.get_pos_dwh(4, -1, 2))
+            super().add_child(hole1, 0, 'hole1')
+            hole2 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = self.tot_h, r_head = self.bolthead_r_tol, l_head = 13 * self.tot_h/20., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h.negative(), pos_n = 0, pos = self.get_pos_dwh(4, 1, 2))
+            super().add_child(hole2, 0, 'hole2')
         
         else:
             shp_box = fcfun.shp_box_dir(box_w = self.tot_w, box_d = self.tot_d, box_h = self.tot_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.pos_o)
             super().add_child(shp_box, 1, 'shp_box')
 
             # make the shape of the piece
-            cut_box1 = fcfun.shp_box_dir(box_w = self.tot_w, box_d = alusize_d + TOL, box_h = alusize_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(1, 0, 1))
+            cut_box1 = fcfun.shp_box_dir(box_w = self.tot_w, box_d = alusize_d + 2 * TOL, box_h = alusize_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(1, 0, 1))
             super().add_child(cut_box1, 0, 'cut_box1')
-            cut_box2 = fcfun.shp_box_dir(box_w = self.tot_w, box_d = alusize_d + TOL, box_h = alusize_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(4, 0, 1))
+            cut_box2 = fcfun.shp_box_dir(box_w = self.tot_w, box_d = alusize_d + 2 * TOL, box_h = alusize_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(6, 0, 1))
             super().add_child(cut_box2, 0, 'cut_box2')
 
             # holes to hold the profile 
-            cut_hole1 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(2, -1, 0))
+            cut_hole1 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(2, -1, 0))
             super().add_child(cut_hole1, 0, 'cut_hole1')
-            cut_hole2 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(2, 1, 0))
+            cut_hole2 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(2, 1, 0))
             super().add_child(cut_hole2, 0, 'cut_hole2')
-            cut_hole3 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(5, -1, 0))
+            cut_hole3 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(3, -1, 0))
             super().add_child(cut_hole3, 0, 'cut_hole3')
-            cut_hole4 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(5, 1, 0))
+            cut_hole4 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(3, 1, 0))
             super().add_child(cut_hole4, 0, 'cut_hole4')
+            cut_hole5 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(7, -1, 0))
+            super().add_child(cut_hole5, 0, 'cut_hole5')
+            cut_hole6 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(7, 1, 0))
+            super().add_child(cut_hole6, 0, 'cut_hole6')
+            cut_hole7 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(8, 1, 0))
+            super().add_child(cut_hole7, 0, 'cut_hole7')
+            cut_hole8 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = wall_thick, r_head = self.bolthead_r_tol, l_head = wall_thick/2., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(8, -1, 0))
+            super().add_child(cut_hole8, 0, 'cut_hole8')
+
+            # holes to hold de screw
+            hole1 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = self.tot_h, r_head = self.bolthead_r_tol, l_head = 13 * self.tot_h/20., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h.negative(), pos_n = 0, pos = self.get_pos_dwh(5, -1, 2))
+            super().add_child(hole1, 0, 'hole1')
+            hole2 = fcfun.shp_bolt_dir(r_shank = self.boltshank_r_tol, l_bolt = self.tot_h, r_head = self.bolthead_r_tol, l_head = 13 * self.tot_h/20., xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h.negative(), pos_n = 0, pos = self.get_pos_dwh(5, 1, 2))
+            super().add_child(hole2, 0, 'hole2')
         
         super().make_parent(name)
+        if opt_sides == 0:
+            for pt_d in (0, 3, 5, 8):
+                for pt_w in (-2, 2):
+                    self.shp = fcfun.shp_filletchamfer_dirpt(self.shp, fc_axis = self.axis_h, fc_pt = self.get_pos_dwh(pt_d, pt_w, 1), fillet = 1, radius = chmf_r)
+        else:
+            for pt_w in (-2, 2):
+                for pt_d in (0, 1, 4, 6, 9, 10):
+                    self.shp = fcfun.shp_filletchamfer_dirpt(self.shp, fc_axis = self.axis_h, fc_pt = self.get_pos_dwh(pt_d, pt_w, 2), fillet = 1, radius = chmf_r)
 
         # Then the Part
         super().create_fco(name)
@@ -221,4 +262,4 @@ class board(Obj3D):
         self.fco.Placement.Base = self.position
 
 doc = FreeCAD.newDocument()
-shpob_board = board(alusize_d = 6., alusize_w = 30., alusize_h = 6., dist_alu = 14., wall_thick = 2., opt_sides = 0, axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1, pos_d = 3, pos_w = 0, pos = V0)
+shpob_board = board(alusize_d = 60., alusize_w = 50., alusize_h = 30., dist_alu = 31., wall_thick = 16., opt_sides = 1, chmf_r = 1., axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1, pos_d = 3, pos_w = 0, pos = V0)
