@@ -125,12 +125,12 @@ guidoc = Gui.getDocument(doc.Label)
 # bill of materials
 file_comps = open ('geo_bom.txt', 'w')
 
-tot_d = 1060 #largo (profundidad interna)
-tot_w = 740 #ancho
+tot_d = 1000 #largo (profundidad interna)
+tot_w = 800 #ancho
 alu_w = 30 # ancho de los perfiles
 
 alu_len_d = tot_d + 2 * alu_w  #perfiles a lo largo (profundo)
-alu_len_v = 90  #perfiles a lo alto para mesa REVISAR
+alu_len_v = 100  #perfiles a lo alto para mesa REVISAR
 alu_len_w = tot_w #perfiles a lo ancho
 alu_len_w_int = tot_w -  2 * alu_w #perfiles a lo ancho interiores
 
@@ -383,7 +383,7 @@ h_alu_base_empuje = comps.getaluprof_dir(d_alu, length=alu_len_w_int,
 h_alu_base_empuje.color(empuje_color)
 
 
-file_comps.write('largueros de la base y mesa, dos mÃ¡s a lo largo \n')
+file_comps.write('largueros de la base y mesa, dos más a lo largo \n')
 file_comps.write('6 x ' + str(alu_len_d) + '\n')
 file_comps.write('perfiles del carro 2x30x30 (dobles) \n')
 file_comps.write('2 x ' + str(alu_car_l) + '\n')
@@ -405,7 +405,7 @@ min_mesa_h = axis_h + alu_carr_trav_h + alu_w
 print('altura entre perfil de la base (top) y perfil del carro (top): ')
 print(str(min_mesa_h), '\n')
             
-# para tenerlo en la siguiente decena mÃ¡s alta, y con minimo 2 mm
+# para tenerlo en la siguiente decena más alta, y con minimo 2 mm
 mesa_h = 10* math.ceil((min_mesa_h +2) / 10.)
 if (mesa_h - min_mesa_h) > 15:
     mesa_h = mesa_h - 10
@@ -416,7 +416,7 @@ print (str(mesa_h))
 
 file_comps.write('perfiles del portico 2x30x30 (dobles) \n')
 file_comps.write('2 x ' + str(alu_len_port_v) + '\n')
-file_comps.write('tambiÃ©n pueden ser simples 30x30 \n')
+file_comps.write('también pueden ser simples 30x30 \n')
 file_comps.write('2 x ' + str(alu_len_port_v) + '\n')
 file_comps.write('puente del portico \n')
 file_comps.write('1 x ' + str(alu_len_gantry) + '\n')
