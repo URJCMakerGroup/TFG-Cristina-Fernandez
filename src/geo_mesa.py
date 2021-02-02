@@ -126,20 +126,20 @@ guidoc = Gui.getDocument(doc.Label)
 file_comps = open ('geo_bom.txt', 'w')
 
 tot_d = 1000 #largo (profundidad interna)
-tot_w = 800 #ancho
+tot_w = 740 #ancho
 alu_w = 30 # ancho de los perfiles
 
 alu_len_d = tot_d + 2 * alu_w  #perfiles a lo largo (profundo)
-alu_len_v = 100  #perfiles a lo alto para mesa REVISAR
+alu_len_v = 90  #perfiles a lo alto para mesa REVISAR
 alu_len_w = tot_w #perfiles a lo ancho
 alu_len_w_int = tot_w -  2 * alu_w #perfiles a lo ancho interiores
 
 # portico horizontal parte arriba
-alu_len_gantry = tot_w + 10. # poner un extra para que no rocen
+alu_len_gantry = tot_w + 10. # poner un extra para que no rocen (mirar)
 
 # carriage width (length=
 #2: each side. 3: to have a double profile and a double bracket
-alu_car_l = tot_w + 2*3*alu_w
+alu_car_l = tot_w + 2*3*alu_w #(mirar)
 
 carro_color = fcfun.ORANGE_08
 empuje_color = fcfun.GREEN_07
@@ -158,7 +158,7 @@ pos_0 = FreeCAD.Vector(pos_0_x, pos_0_y, pos_0_z)
 
 rod_d = 20. #diameter of the rods
 
-leadscrew_tot_l = 500.
+leadscrew_tot_l = 530. #(mirar)
 leadscrew_motor_space_l = 30.
 leadscrew_int_l = leadscrew_tot_l - leadscrew_motor_space_l
 leadscrew_d = 12 # trapecial, or 16.
@@ -383,7 +383,7 @@ h_alu_base_empuje = comps.getaluprof_dir(d_alu, length=alu_len_w_int,
 h_alu_base_empuje.color(empuje_color)
 
 
-file_comps.write('largueros de la base y mesa, dos más a lo largo \n')
+file_comps.write('largueros de la base y mesa, dos mï¿½s a lo largo \n')
 file_comps.write('6 x ' + str(alu_len_d) + '\n')
 file_comps.write('perfiles del carro 2x30x30 (dobles) \n')
 file_comps.write('2 x ' + str(alu_car_l) + '\n')
@@ -405,7 +405,7 @@ min_mesa_h = axis_h + alu_carr_trav_h + alu_w
 print('altura entre perfil de la base (top) y perfil del carro (top): ')
 print(str(min_mesa_h), '\n')
             
-# para tenerlo en la siguiente decena más alta, y con minimo 2 mm
+# para tenerlo en la siguiente decena mï¿½s alta, y con minimo 2 mm
 mesa_h = 10* math.ceil((min_mesa_h +2) / 10.)
 if (mesa_h - min_mesa_h) > 15:
     mesa_h = mesa_h - 10
@@ -416,7 +416,7 @@ print (str(mesa_h))
 
 file_comps.write('perfiles del portico 2x30x30 (dobles) \n')
 file_comps.write('2 x ' + str(alu_len_port_v) + '\n')
-file_comps.write('también pueden ser simples 30x30 \n')
+file_comps.write('tambiï¿½n pueden ser simples 30x30 \n')
 file_comps.write('2 x ' + str(alu_len_port_v) + '\n')
 file_comps.write('puente del portico \n')
 file_comps.write('1 x ' + str(alu_len_gantry) + '\n')
