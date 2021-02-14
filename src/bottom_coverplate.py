@@ -120,9 +120,11 @@ class bottom_coverplate(Obj3D):
         self.d_o[0] = V0
         self.d_o[1] = self.vec_d(sides/2.)
         self.d_o[2] = self.vec_d(sides)
-        self.d_o[3] = self.vec_d(sides + arduino_d + d_bottom)
-        self.d_o[4] = self.vec_d(sides + arduino_d + d_bottom + sides/2.)
-        self.d_o[5] = self.vec_d(self.tot_d)
+        self.d_o[3] = self.vec_d(sides + arduino_d - 3)
+        self.d_o[4] = self.vec_d(sides + arduino_d)
+        self.d_o[5] = self.vec_d(sides + arduino_d + d_bottom)
+        self.d_o[6] = self.vec_d(sides + arduino_d + d_bottom + sides/2.)
+        self.d_o[7] = self.vec_d(self.tot_d)
 
         # position along axis_w
         self.w_o[0] = V0
@@ -137,7 +139,7 @@ class bottom_coverplate(Obj3D):
         
         cut = []
 
-        for pt_d in (0, 3):
+        for pt_d in (0, 5):
             shp_sides = fcfun.shp_box_dir(box_w = self.tot_w, box_d = sides, box_h = self.tot_h, fc_axis_h = axis_h, fc_axis_d = axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(pt_d, 0, 1))
             cut.append(shp_sides)
 
@@ -150,7 +152,7 @@ class bottom_coverplate(Obj3D):
         shp_rail = fcfun.shp_box_dir(box_w = arduino_w, box_d = arduino_d, box_h = h_rail, fc_axis_h = axis_h, fc_axis_d = axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(2, 0, 2))
         cut.append(shp_rail)
 
-        for pt_d in (1, 4):
+        for pt_d in (1, 6):
             for pt_w in (-1, 1):
                 shp_hole = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = h_base, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(pt_d, pt_w, 0)) 
                 cut.append(shp_hole)
@@ -159,6 +161,19 @@ class bottom_coverplate(Obj3D):
         shp_final = shp_box.cut(shp_cut)
         doc.recompute()
 
+        for pt_d in (0, 7):
+            for pt_w in (-2, 2):
+                shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_h, fc_pt = self.get_pos_dwh(pt_d, pt_w, 0), fillet = 1, radius = chmf_r)
+
+        for pt_d in (2, 5):
+            for pt_w in (-2, 2):
+                shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_h, fc_pt = self.get_pos_dwh(pt_d, pt_w, 1), fillet = 1, radius = chmf_r)
+        
+        for pt_w in (-1, 1):
+            shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_h, fc_pt = self.get_pos_dwh(4, pt_w, 3), fillet = 1, radius = chmf_r)
+            for pt_h in (1, 3):
+                shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_h, fc_pt = self.get_pos_dwh(2, pt_w, pt_h), fillet = 1, radius = chmf_r)
+        
         self.shp = shp_final
 
         # Then the Part
