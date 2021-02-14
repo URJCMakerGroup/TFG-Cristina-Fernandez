@@ -117,8 +117,8 @@ logging.basicConfig(level=logging.DEBUG,
 
 doc = FreeCAD.newDocument()
 
-Gui.ActiveDocument = Gui.getDocument(doc.Label)
-guidoc = Gui.getDocument(doc.Label)
+#Gui.ActiveDocument = Gui.getDocument(doc.Label)
+#guidoc = Gui.getDocument(doc.Label)
 
 
 # file to save the components and their dimensions. Kind of a BOM,
@@ -158,7 +158,7 @@ pos_0 = FreeCAD.Vector(pos_0_x, pos_0_y, pos_0_z)
 
 rod_d = 20. #diameter of the rods
 
-leadscrew_tot_l = 530. #(mirar)
+leadscrew_tot_l = 510. #(mirar)
 leadscrew_motor_space_l = 30.
 leadscrew_int_l = leadscrew_tot_l - leadscrew_motor_space_l
 leadscrew_d = 12 # trapecial, or 16.
@@ -171,6 +171,18 @@ alu_len_empuje_v = 250
 
 alu_tray_name = 'alu_tray'
 
+# travesano interno para el final del husillo y su soporte
+alu_base_traves_int_pos = DraftVecUtils.scale(VY, leadscrew_int_l-alu_w/2)
+h_alu = comps.getaluprof_dir(d_alu, length=alu_len_w_int,
+                                 fc_axis_l = VX,
+                                 fc_axis_w = VY,
+                                 fc_axis_p = VZN,
+                                 ref_l = 1, # centered
+                                 ref_w = 1, # centered
+                                 ref_p = 2, # at top
+                                 wfco = 1,
+                                 pos = alu_base_traves_int_pos + pos_0,
+                                 name = 'travesano_int')
 
 print ('travesanos ancho: ', str(alu_len_w))
 # los travesanos en direccion x, cubren el ancho
@@ -188,34 +200,34 @@ for y_i in [0,1]:  #
                                  pos = alu_base_traves_pos + pos_0,
                                  name = alu_name)
 
-    # soportes de ejes
-    for x_i in [-1,1]:  # izquierda y derecha
-        sh_pos = alu_base_traves_pos + DraftVecUtils.scale(VX, x_i*tot_w/2) 
-        sh_name = 'sh_' + '_y' + str(y_i) + '_x' + str_neg(x_i)
-        h_sh8 = comps.Sk_dir(size=rod_d,
-                             fc_axis_h = VZ,
-                             fc_axis_d = VY,
-                             fc_axis_w = DraftVecUtils.scale(VXN,x_i),
-                             ref_hr = 0,
-                             ref_wc = -1, #at the end
-                             ref_dc = 1,
-                             tol=0, # not to print
-                             pos=sh_pos + pos_0,
-                             name = sh_name)
-
-# travesano interno para el final del husillo y su soporte
-alu_base_traves_int_pos = DraftVecUtils.scale(VY, leadscrew_int_l-alu_w/2)
-h_alu = comps.getaluprof_dir(d_alu, length=alu_len_w_int,
-                                 fc_axis_l = VX,
-                                 fc_axis_w = VY,
-                                 fc_axis_p = VZN,
-                                 ref_l = 1, # centered
-                                 ref_w = 1, # centered
-                                 ref_p = 2, # at top
-                                 wfco = 1,
-                                 pos = alu_base_traves_int_pos + pos_0,
-                                 name = 'travesano_int')
-
+# soportes de ejes
+for x_i in [-1,1]:  # izquierda y derecha
+    sh_pos1 = alu_base_traves_int_pos + DraftVecUtils.scale(VX, x_i*tot_w/2) 
+    sh_name1 = 'sh_' + '_y' + str(1) + '_x' + str_neg(x_i)
+    h_sh8_1 = comps.Sk_dir(size=rod_d,
+                         fc_axis_h = VZ,
+                         fc_axis_d = VY,
+                         fc_axis_w = DraftVecUtils.scale(VXN,x_i),
+                         ref_hr = 0,
+                         ref_wc = -1, #at the end
+                         ref_dc = 1,
+                         tol=0, # not to print
+                         pos=sh_pos1 + pos_0,
+                         name = sh_name1)
+    
+    sh_pos2 = DraftVecUtils.scale(VX, x_i*tot_w/2) 
+    sh_name2 = 'sh_' + '_y' + str(2) + '_x' + str_neg(x_i)
+    h_sh8_2 = comps.Sk_dir(size=rod_d,
+                         fc_axis_h = VZ,
+                         fc_axis_d = VY,
+                         fc_axis_w = DraftVecUtils.scale(VXN,x_i),
+                         ref_hr = 0,
+                         ref_wc = -1, #at the end
+                         ref_dc = 1,
+                         tol=0, # not to print
+                         pos=sh_pos2 + pos_0,
+                         name = sh_name2)
+    
 
 file_comps.write('perfiles de la base y mesa 30x30, travesanos: \n')
 file_comps.write('4 x ' + str(alu_len_w) + ' \n')
@@ -223,12 +235,12 @@ file_comps.write('      perfil interno soporte husillo (alguno mas) \n')
 file_comps.write('4 x ' + str(alu_len_w_int) + ' \n')
 
 # height of the axis, from pos_0
-axis_h = h_sh8.axis_h
+axis_h = h_sh8_1.axis_h
 
 # distance from the side to the center of the SH
-axis_cen_w = h_sh8.tot_w/2
+axis_cen_w = h_sh8_1.tot_w/2
 
-axis_len = alu_len_d + 2*alu_w
+axis_len = alu_len_d/2. - alu_w
 
 
 #dictionary of the linear bearing housing
@@ -268,7 +280,7 @@ for x_i in [-1,1]:  # izquierda y derecha
 
     for y_i in [0,1]:  # 
         # Para uno de 4, todos en una pieza
-        #linbear_pos_y DraftVecUtils.scale(VY,3*alu_w + y_i*alu_w)
+        linbear_pos_y = DraftVecUtils.scale(VY,3*alu_w + y_i*alu_w)
         linbear1_pos_y = DraftVecUtils.scale(VY,3*alu_w)
         linbear_pos_y = DraftVecUtils.scale(VY,3*alu_w + y_i*3*alu_w)
         linbear_pos  = axis_pos + linbear_pos_y
@@ -279,7 +291,6 @@ for x_i in [-1,1]:  # izquierda y derecha
                                              mid_center = 1,
                                              pos = linbear_pos + pos_0)
         # height of the base of the aluminum profile of carriage, from pos_0
-
 
         alu_carr_trav_h = kcomp.SCE20UU_Pr30b['axis_h']
 
@@ -302,7 +313,8 @@ for x_i in [-1,1]:  # izquierda y derecha
                                              wfco = 1,
                                              pos = alu_car_pos + pos_0,
                                              name = alu_car_name)
-                h_alu.color(carro_color)
+                #h_alu.color(carro_color)
+
     #perfiles verticales del portico, no se si dobles a simples
     # solo hay uno por cada lado
     port_pos_y = linbear1_pos_y + DraftVecUtils.scale(VY,alu_w)
@@ -322,7 +334,7 @@ for x_i in [-1,1]:  # izquierda y derecha
                                       wfco = 1,
                                       pos = alu_port_v_pos + pos_0,
                                       name = alu_port_name)
-        h_alu.color(carro_color)
+        #h_alu.color(carro_color)
 
 topgantry_pos_z = port_pos_z + DraftVecUtils.scale(VZ, alu_len_port_v)
 topgantry_pos = port_pos_y + topgantry_pos_z
@@ -336,7 +348,8 @@ h_alu_topgantry = comps.getaluprof_dir(d_alu, length=alu_len_gantry,
                                       wfco = 1,
                                       pos = topgantry_pos + pos_0,
                                       name = 'top_gantry')
-h_alu_topgantry.color(carro_color)
+
+#h_alu_topgantry.color(carro_color)
 
 empuje_v_pos_z = topgantry_pos_z + DraftVecUtils.scale(VZN, alu_w)
 
@@ -355,8 +368,7 @@ for x_i in [-1,1]:  # izquierda y derecha
                                       wfco = 1,
                                       pos = empuje_v_pos + pos_0,
                                       name = alu_port_name)
-    h_alu_empuje_v.color(empuje_color)
-
+    #h_alu_empuje_v.color(empuje_color)
 
 file_comps.write('perfiles que bajan del portico para empujar\n')
 file_comps.write('4 x ' + str(alu_len_empuje_v) + '\n')
@@ -380,15 +392,12 @@ h_alu_base_empuje = comps.getaluprof_dir(d_alu, length=alu_len_w_int,
                                       wfco = 1,
                                       pos = base_empuje_pos + pos_0,
                                       name = 'alu_base_empuje')
-h_alu_base_empuje.color(empuje_color)
+#h_alu_base_empuje.color(empuje_color)
 
-
-file_comps.write('largueros de la base y mesa, dos m�s a lo largo \n')
+file_comps.write('largueros de la base y mesa, dos más a lo largo \n')
 file_comps.write('6 x ' + str(alu_len_d) + '\n')
 file_comps.write('perfiles del carro 2x30x30 (dobles) \n')
 file_comps.write('2 x ' + str(alu_car_l) + '\n')
-
-
 
 file_comps.write('perfil de la base del empuje\n')
 file_comps.write( str(alu_len_w_int) + '\n')
@@ -399,28 +408,22 @@ file_comps.write( str(alu_len_w_int-60) + '\n')
 file_comps.write('perfil de la base del empuje: extras (-120)\n')
 file_comps.write( str(alu_len_w_int-120) + '\n')
 
-
-
 min_mesa_h = axis_h + alu_carr_trav_h + alu_w
 print('altura entre perfil de la base (top) y perfil del carro (top): ')
 print(str(min_mesa_h), '\n')
             
-# para tenerlo en la siguiente decena m�s alta, y con minimo 2 mm
+# para tenerlo en la siguiente decena más alta, y con minimo 2 mm
 mesa_h = 10* math.ceil((min_mesa_h +2) / 10.)
 if (mesa_h - min_mesa_h) > 15:
     mesa_h = mesa_h - 10
 print (str(mesa_h))
 
-
-
-
 file_comps.write('perfiles del portico 2x30x30 (dobles) \n')
 file_comps.write('2 x ' + str(alu_len_port_v) + '\n')
-file_comps.write('tambi�n pueden ser simples 30x30 \n')
+file_comps.write('también pueden ser simples 30x30 \n')
 file_comps.write('2 x ' + str(alu_len_port_v) + '\n')
 file_comps.write('puente del portico \n')
 file_comps.write('1 x ' + str(alu_len_gantry) + '\n')
-
 
 file_comps.write('altura entre perfil de la base (top) y perfil de carro (top): ')
 file_comps.write(str(min_mesa_h) + '\n')
@@ -445,7 +448,6 @@ for x_i in [-1,1]:  # izquierda y derecha
 
 #Perfiles de la mesa, ya contabilizados arriba, porque son las mismas
 # dimensiones que la base
-
 for y_i in [0,1]:  # 
     alu_name = 'alu_travesano_mesa' + '_y' + str(y_i)
     alu_base_traves_pos = (pos_0
@@ -461,7 +463,6 @@ for y_i in [0,1]:  #
                                  wfco = 1,
                                  pos = alu_base_traves_pos,
                                  name = alu_name)
-
 
 for x_i in [-1,1]:  # izquierda y derecha
     alu_name = 'alu_largo_mesa' + '_x' + str_neg(x_i)
@@ -480,7 +481,6 @@ for x_i in [-1,1]:  # izquierda y derecha
                                  pos = alu_mesa_largo_pos,
                                  name = alu_name)
 
-
 # Pillow block soporte de husillo (dibujo aproximado)
 for y_i in [0,1]:  # delante detras
     pillow_pos = DraftVecUtils.scale(VY, y_i*(leadscrew_int_l-alu_w/2)) 
@@ -497,7 +497,6 @@ for y_i in [0,1]:  # delante detras
                              pos= pillow_pos + pos_0,
                              name = pillow_name)
 
-
 # tornillo sin fin
 leads_pos = ( DraftVecUtils.scale(VZ, h_pillow.axis_h)
             + DraftVecUtils.scale(VYN, alu_w/2))
@@ -506,7 +505,6 @@ shp_leads = fcfun.shp_cyl_gen(r = leadscrew_d/2., h=leadscrew_tot_l,
                               pos_h = 1,
                               pos = leads_pos + pos_0)
 Part.show(shp_leads)
-
 
 motor_pos = leads_pos + DraftVecUtils.scale(VY,leadscrew_tot_l)
 nema_motor = comps.PartNemaMotor (
@@ -529,7 +527,5 @@ nema_motor = comps.PartNemaMotor (
                               pos_h = 2,
                               pos = motor_pos + pos_0)
 
-
 file_comps.close()
-
 doc.recompute()
