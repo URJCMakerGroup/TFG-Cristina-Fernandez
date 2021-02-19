@@ -528,5 +528,87 @@ nema_motor = comps.PartNemaMotor (
                               pos_h = 2,
                               pos = motor_pos + pos_0)
 
+# los largueros en direccion que sirven de soporte para la tabla
+alu_largo_sop = 240
+sep_alu_largo = alu_largo_sop + 2 * alu_w
+
+for x_i in [-1,1]:  # izquierda y derecha
+    alu_name = 'alu_largo' + '_x' + str_neg(x_i)
+    alu_largo_pos = (DraftVecUtils.scale(VX, x_i * sep_alu_largo/2) 
+                             + DraftVecUtils.scale(VY, alu_w/2) 
+                             + DraftVecUtils.scale(VZ, alu_len_v + alu_w))
+
+    h_alu = comps.getaluprof_dir(d_alu, length=alu_len_d,
+                                 fc_axis_l = VY,
+                                 fc_axis_w = DraftVecUtils.scale(VXN,x_i),
+                                 fc_axis_p = VZN,
+                                 ref_l = 2, # from the side
+                                 ref_w = 2, # from the side
+                                 ref_p = 2, # at top
+                                 wfco = 1,
+                                 pos = alu_largo_pos + pos_0,
+                                 name = alu_name)
+
+# travesano interno superior para el soporte de la tabla
+alu_traves_int_sup_pos = (DraftVecUtils.scale(VY, leadscrew_int_l-alu_w/2)
+                                 + DraftVecUtils.scale(VZ, alu_len_v + alu_w))
+
+h_alu = comps.getaluprof_dir(d_alu, length=alu_largo_sop,
+                                 fc_axis_l = VX,
+                                 fc_axis_w = VY,
+                                 fc_axis_p = VZN,
+                                 ref_l = 1, # centered
+                                 ref_w = 1, # centered
+                                 ref_p = 2, # at top
+                                 wfco = 1,
+                                 pos = alu_traves_int_sup_pos + pos_0,
+                                 name = 'travesano_int_sup')
+
+# el travesano en direccion x que soporta la tabla con la fuente de alimentación y el Arduino
+alu_largo_sop_x = 220
+alu_largo_sop_y = 260
+alu_traves_sop_x_pos = (DraftVecUtils.scale(VX, (-1)*tot_w/2 + alu_largo_sop_x/2 + alu_w) 
+                         + DraftVecUtils.scale(VY, alu_len_d - alu_largo_sop_y))
+h_alu = comps.getaluprof_dir(d_alu, length=alu_largo_sop_x,
+                             fc_axis_l = VX,
+                             fc_axis_w = VY,
+                             fc_axis_p = VZN,
+                             ref_l = 1, # centered
+                             ref_w = 1, # centered
+                             ref_p = 2, # at top
+                             wfco = 1,
+                             pos = alu_traves_sop_x_pos + pos_0,
+                             name = 'alu_travesano_sop_x')    
+
+# el travesano en direccion y que soporta la tabla con la fuente de alimentación y el Arduino 
+alu_traves_sop_y_pos = (DraftVecUtils.scale(VX, (-1)*tot_w/2 + alu_largo_sop_x + alu_w/2) 
+                         + DraftVecUtils.scale(VY, alu_len_d + alu_w/2 - alu_largo_sop_y/2))
+
+h_alu = comps.getaluprof_dir(d_alu, length=alu_largo_sop_y,
+                             fc_axis_l = VY,
+                             fc_axis_w = VX,
+                             fc_axis_p = VZN,
+                             ref_l = 1, # centered
+                             ref_w = 1, # centered
+                             ref_p = 2, # at top
+                             wfco = 1,
+                             pos = alu_traves_sop_y_pos + pos_0,
+                             name = 'alu_travesano_sop_y')    
+
+# el travesano en direccion z 
+alu_traves_sop_z_pos = (DraftVecUtils.scale(VX, (-1)*tot_w/2 + alu_largo_sop_x + alu_w) 
+                         + DraftVecUtils.scale(VY, alu_len_d - alu_largo_sop_y))
+
+h_alu = comps.getaluprof_dir(d_alu, length=mesa_h,
+                             fc_axis_l = VZ,
+                             fc_axis_w = VXN,
+                             fc_axis_p = VY,
+                             ref_l = 2, # centered
+                             ref_w = 2, # centered
+                             ref_p = 1, # at top
+                             wfco = 1,
+                             pos = alu_traves_sop_z_pos + pos_0,
+                             name = 'alu_travesano_sop_z')                       
+
 file_comps.close()
 doc.recompute()
