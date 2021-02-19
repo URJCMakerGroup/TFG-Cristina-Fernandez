@@ -132,14 +132,15 @@ alu_w = 30 # ancho de los perfiles
 alu_len_d = tot_d + 2 * alu_w  #perfiles a lo largo (profundo)
 alu_len_v = 90  #perfiles a lo alto para mesa REVISAR
 alu_len_w = tot_w #perfiles a lo ancho
-alu_len_w_int = tot_w -  2 * alu_w #perfiles a lo ancho interiores
+alu_len_w_int1 = tot_w - 2 * alu_w #perfil a lo ancho interior de la base de la estructura
+alu_len_w_int2 = tot_w #perfiles a lo ancho interiores del puente móvil
 
 # portico horizontal parte arriba
-alu_len_gantry = tot_w + 10. # poner un extra para que no rocen (mirar)
+alu_len_gantry = tot_w + 60. # poner un extra para que no rocen (mirar)
 
 # carriage width (length=
 #2: each side. 3: to have a double profile and a double bracket
-alu_car_l = tot_w + 2*3*alu_w #(mirar)
+alu_car_l = tot_w + 2 * 3 * alu_w + 60. #(mirar)
 
 carro_color = fcfun.ORANGE_08
 empuje_color = fcfun.GREEN_07
@@ -167,13 +168,13 @@ leadscrew_d = 12 # trapecial, or 16.
 alu_len_port_v = 400
 
 # perfiles que bajan del portico para empujar
-alu_len_empuje_v = 250
+alu_len_empuje_v = 244
 
 alu_tray_name = 'alu_tray'
 
 # travesano interno para el final del husillo y su soporte
 alu_base_traves_int_pos = DraftVecUtils.scale(VY, leadscrew_int_l-alu_w/2)
-h_alu = comps.getaluprof_dir(d_alu, length=alu_len_w_int,
+h_alu = comps.getaluprof_dir(d_alu, length=alu_len_w_int1,
                                  fc_axis_l = VX,
                                  fc_axis_w = VY,
                                  fc_axis_p = VZN,
@@ -232,7 +233,7 @@ for x_i in [-1,1]:  # izquierda y derecha
 file_comps.write('perfiles de la base y mesa 30x30, travesanos: \n')
 file_comps.write('4 x ' + str(alu_len_w) + ' \n')
 file_comps.write('      perfil interno soporte husillo (alguno mas) \n')
-file_comps.write('4 x ' + str(alu_len_w_int) + ' \n')
+file_comps.write('4 x ' + str(alu_len_w_int1) + ' \n')
 
 # height of the axis, from pos_0
 axis_h = h_sh8_1.axis_h
@@ -247,7 +248,7 @@ axis_len = alu_len_d/2. - alu_w
 d_linbear_house = kcomp.SCE20UU_Pr30b
 
 # separacion de los postes verticales del portico de la mesa, a cada lado
-port_sep = 5.
+port_sep = 30.
 
 print ('largeros: largo: ', str(alu_len_d))
 # los largueros en direccion y, cubren la profundidad (depth)
@@ -317,8 +318,8 @@ for x_i in [-1,1]:  # izquierda y derecha
 
     #perfiles verticales del portico, no se si dobles a simples
     # solo hay uno por cada lado
-    port_pos_y = linbear1_pos_y + DraftVecUtils.scale(VY,alu_w)
-    port_pos_z = DraftVecUtils.scale(VZ, axis_h + alu_carr_trav_h)
+    port_pos_y = linbear1_pos_y + DraftVecUtils.scale(VY, alu_w)
+    port_pos_z = DraftVecUtils.scale(VZ, axis_h + alu_carr_trav_h + alu_w)
     for it_x in[0,1]: # a double profile
         alu_port_name = 'alu_port_v' + str_neg(x_i,p=1, n=0)
         alu_port_v_pos  = (port_pos_y + port_pos_z
@@ -356,7 +357,7 @@ empuje_v_pos_z = topgantry_pos_z + DraftVecUtils.scale(VZN, alu_w)
 # perfiles que bajan del portico para empujar
 for x_i in [-1,1]:  # izquierda y derecha
     alu_name = 'alu_empuje_v' + '_x' + str_neg(x_i, p=1)
-    empuje_v_pos_x = DraftVecUtils.scale(VX, x_i * alu_len_w_int/2.)
+    empuje_v_pos_x = DraftVecUtils.scale(VX, x_i * (alu_len_w_int2/2. - 30.))
     empuje_v_pos = empuje_v_pos_x + port_pos_y + empuje_v_pos_z 
     h_alu_empuje_v = comps.getaluprof_dir(d_alu, length=alu_len_empuje_v,
                                       fc_axis_l = VZN,
@@ -382,7 +383,7 @@ file_comps.write('largo:' + str(axis_len) + '  diametro :' + str(rod_d) + '\n\n'
 # perfil de la base del empuje
 base_empuje_pos_z = empuje_v_pos_z + DraftVecUtils.scale(VZN, alu_len_empuje_v)
 base_empuje_pos = port_pos_y + base_empuje_pos_z 
-h_alu_base_empuje = comps.getaluprof_dir(d_alu, length=alu_len_w_int,
+h_alu_base_empuje = comps.getaluprof_dir(d_alu, length=alu_len_w_int2,
                                       fc_axis_l = VX,
                                       fc_axis_w = VY,
                                       fc_axis_p = VZN,
@@ -400,13 +401,13 @@ file_comps.write('perfiles del carro 2x30x30 (dobles) \n')
 file_comps.write('2 x ' + str(alu_car_l) + '\n')
 
 file_comps.write('perfil de la base del empuje\n')
-file_comps.write( str(alu_len_w_int) + '\n')
+file_comps.write( str(alu_len_w_int2) + '\n')
 
 file_comps.write('perfil de la base del empuje: extras (-60)\n')
-file_comps.write( str(alu_len_w_int-60) + '\n')
+file_comps.write( str(alu_len_w_int2-60) + '\n')
 
 file_comps.write('perfil de la base del empuje: extras (-120)\n')
-file_comps.write( str(alu_len_w_int-120) + '\n')
+file_comps.write( str(alu_len_w_int2-120) + '\n')
 
 min_mesa_h = axis_h + alu_carr_trav_h + alu_w
 print('altura entre perfil de la base (top) y perfil del carro (top): ')
@@ -508,7 +509,7 @@ Part.show(shp_leads)
 
 motor_pos = leads_pos + DraftVecUtils.scale(VY,leadscrew_tot_l)
 nema_motor = comps.PartNemaMotor (
-                              nema_size = 23,
+                              nema_size = 17,
                               base_l = 56.,
                               shaft_l = 21.,
                               shaft_r = 6.35/2.,
