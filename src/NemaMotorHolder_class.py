@@ -2,6 +2,7 @@ import FreeCAD
 import Part 
 import Draft
 import Mesh
+import math
 import MeshPart
 import DraftVecUtils
 import logging
@@ -162,7 +163,7 @@ class NemaMotorHolder(Obj3D):
         position of the holder (considering ref_axis)
     """
 
-    def __init__(self, nema_size = 17, wall_thick = 4., motor_thick = 4., reinf_thick = 4., motor_min_h = 10., motor_max_h = 20., motor_xtr_space = 2., bolt_wall_d = 3., bolt_wall_d_rail = 4., bolt_wall_sep = 30., rail = 1, chmf_r = 1., axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1, pos_d = 3, pos_w = 0, pos = V0, name = ''):
+    def __init__(self, nema_size = 17, wall_thick = 4., motor_thick = 4., reinf_thick = 4., motor_min_h = 10., motor_max_h = 20., motor_xtr_space = 2., xtr_diam_cir = 8., diam_cir = 28.,bolt_wall_d = 3., bolt_wall_d_rail = 4., bolt_wall_sep = 30., rail = 1, chmf_r = 1., angle = 45., axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1, pos_d = 3, pos_w = 0, pos = V0, name = ''):
         if axis_w is None or axis_w == V0:
            axis_w = axis_h.cross(axis_d) #vector product
 
@@ -192,6 +193,7 @@ class NemaMotorHolder(Obj3D):
         # calculation of the bolt wall d
         self.boltwallshank_r_tol = kcomp.D912[bolt_wall_d]['shank_r_tol']
         self.boltwallhead_l = kcomp.D912[bolt_wall_d]['head_l']
+        self.boltwallhead_r_tol = kcomp.D912[bolt_wall_d]['head_r_tol']
         self.boltwallhead_r = kcomp.D912[bolt_wall_d]['head_r']
         self.washer_thick = kcomp.WASH_D125_T[bolt_wall_d]
 
@@ -203,18 +205,15 @@ class NemaMotorHolder(Obj3D):
 
         # calculation of the bolt wall separation
         self.max_bolt_wall_sep = self.motor_w - 2 * self.boltwallhead_r
-        self.min_bolt_wall_sep = 4 * self.boltwallhead_r
         if bolt_wall_sep == 0:
             self.bolt_wall_sep = self.max_bolt_wall_sep
         elif bolt_wall_sep > self.max_bolt_wall_sep: 
             logger.debug('bolt separation too large:' + str(bolt_wall_sep))
             self.bolt_wall_sep = self.max_bolt_wall_sep
             logger.debug('taking largest value:' + str(self.bolt_wall_sep))
-        elif bolt_wall_sep < self.min_bolt_wall_sep:
-        #elif bolt_wall_sep < 4 * self.boltwallhead_r:
+        elif bolt_wall_sep < 4 * self.boltwallhead_r:
             logger.debug('bolt separation too short:' + str(bolt_wall_sep))
-            #self.bolt_wall_sep = self.self.max_bolt_wall_sep
-            self.bolt_wall_sep = self.min_bolt_wall_sep
+            self.bolt_wall_sep = self.self.max_bolt_wall_sep
             logger.debug('taking smallest value:' + str(self.bolt_wall_sep))
         
         # distance from the motor to the inner wall (in axis_d)
@@ -227,6 +226,10 @@ class NemaMotorHolder(Obj3D):
 
         # distance from the motor axis to the wall (in axis_d)
         self.motax2wall = wall_thick + self.motor_inwall_space + self.motor_w/2.
+
+        #
+        self.d_circle = math.sin(math.radians(angle))*(diam_cir/2.)
+        self.w_circle = math.cos(math.radians(angle))*(diam_cir/2.)
 
         # definition of which axis is symmetrical
         self.h0_cen = 0
@@ -243,15 +246,15 @@ class NemaMotorHolder(Obj3D):
         # position along axis_d
         self.d_o[0] = V0
         self.d_o[1] = self.vec_d(wall_thick)
-        self.d_o[2] = self.vec_d(self.motax2wall - self.motor_bolt_sep/2.)
+        self.d_o[2] = self.vec_d(self.motax2wall - self.d_circle)
         self.d_o[3] = self.vec_d(self.motax2wall)
-        self.d_o[4] = self.vec_d(self.motax2wall + self.motor_bolt_sep/2.)
+        self.d_o[4] = self.vec_d(self.motax2wall + self.d_circle)
         self.d_o[5] = self.vec_d(self.tot_d)
 
         # vectors from the origin to the points along axis_w
         self.w_o[0] = V0
         self.w_o[1] = self.vec_w(-self.bolt_wall_sep/2.)
-        self.w_o[2] = self.vec_w(-self.motor_bolt_sep/2.)
+        self.w_o[2] = self.vec_w(self.w_circle + TOL)
         self.w_o[3] = self.vec_w(-self.tot_w/2.)
 
         # calculates the position of the origin, and keeps it in attribute pos_o
@@ -278,13 +281,14 @@ class NemaMotorHolder(Obj3D):
         holes.append(shp_motor)
 
             # central circle of the motor 
-        shp_hole = fcfun.shp_cylcenxtr(r = (self.motor_bolt_sep - self.motor_bolt_d + 8.)/2., h = motor_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_d(3))
+        shp_hole = fcfun.shp_cylcenxtr(r = (self.motor_bolt_sep - self.motor_bolt_d - xtr_diam_cir + TOL)/2., h = motor_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_d(3))
         holes.append(shp_hole)
 
             # motor bolt holes
         for pt_d in (2, 4):
             for pt_w in (-2, 2):
-                shp_hole = fcfun.shp_cylcenxtr(r = self.boltwallshank_r_tol, h = motor_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(pt_d, pt_w, 0))
+                shp_hole = fcfun.shp_bolt_dir(r_shank = self.boltwallshank_r_tol, l_bolt = motor_thick, r_head = self.boltwallhead_r + TOL/3., l_head = 2, xtr_head = 1, xtr_shank = 1, fc_normal = self.axis_h, pos_n = 0, pos = self.get_pos_dwh(pt_d, pt_w, 0))
+                #shp_hole = fcfun.shp_cylcenxtr(r = self.boltwallshank_r_tol, h = motor_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(pt_d, pt_w, 0))
                 holes.append(shp_hole)
 
             # rail holes
@@ -309,4 +313,4 @@ class NemaMotorHolder(Obj3D):
         self.fco.Placement.Base = self.position
 
 doc = FreeCAD.newDocument()
-shpob_nema = NemaMotorHolder(nema_size = 17, wall_thick = 6., motor_thick = 6., reinf_thick = 1., motor_min_h =10., motor_max_h =50., rail = 1, motor_xtr_space = 3., bolt_wall_d = 4., chmf_r = 1., axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1,  pos_d = 3, pos_w = 0, pos = V0)
+shpob_nema = NemaMotorHolder(nema_size = 17, wall_thick = 7.35, motor_thick = 5., reinf_thick = 8., motor_min_h =10., motor_max_h =50., rail = 1, motor_xtr_space = 3., xtr_diam_cir = 6., diam_cir = 28., bolt_wall_d = 3., bolt_wall_d_rail = 4., chmf_r = 1., angle = 45., axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1,  pos_d = 3, pos_w = 0, pos = V0)
