@@ -98,7 +98,7 @@ class board(Obj3D):
     pos: FreeCAD.Vector
         position of the holder (considering ref_axis)
     """
-    def __init__(self, alusize_d= 50., alusize_w=30., alusize_h = 50., dist_alu = 30., wall_thick = 4., bolt_wall_d = 5., chmf_r =1., axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1, pos_d = 3, pos_w = 0, pos = V0, name = ''):
+    def __init__(self, alusize_d= 50., alusize_w=30., alusize_h = 50., dist_alu = 30., dist_hole = 36., wall_thick = 4., bolt_wall_d = 5., chmf_r =1., axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1, pos_d = 3, pos_w = 0, pos = V0, name = ''):
         if axis_w is None or axis_w == V0:
            axis_w = axis_h.cross(axis_d) #vector product
         
@@ -127,9 +127,9 @@ class board(Obj3D):
         self.bolthead_l_tol = kcomp.D912[bolt_wall_d]['head_l_tol']
 
         # making the big box that will contain everything and will be cut
-        self.tot_w = alusize_w 
+        self.tot_w = alusize_w + 4.5
         self.tot_h = wall_thick + alusize_h/2.
-        self.tot_d = 2 * alusize_d - 20. + dist_alu
+        self.tot_d = 2 * alusize_d - 20. + dist_alu + 8.5
 
         # definition of which axis is symmetrical
         self.h0_cen = 0
@@ -143,16 +143,16 @@ class board(Obj3D):
 
         # position along axis_d
         self.d_o[0] = V0
-        self.d_o[1] = self.vec_d(alusize_d/2. - 10.)
-        self.d_o[2] = self.vec_d(alusize_d - 10. + TOL)
-        self.d_o[3] = self.vec_d(alusize_d - 10. + dist_alu/2.)
-        self.d_o[4] = self.vec_d(alusize_d - 10. + dist_alu - TOL)
-        self.d_o[5] = self.vec_d(alusize_d - 10. + dist_alu + alusize_d/2.)
+        self.d_o[1] = self.vec_d(alusize_d/2. - 10. + 4.25)
+        self.d_o[2] = self.vec_d(alusize_d - 10. + 4.25 + TOL)
+        self.d_o[3] = self.vec_d(alusize_d - 10. + 4.25 + dist_alu/2.)
+        self.d_o[4] = self.vec_d(alusize_d - 10. + 4.25 + dist_alu - TOL)
+        self.d_o[5] = self.vec_d(alusize_d - 10. + 4.25 + dist_alu + alusize_d/2.)
         self.d_o[6] = self.vec_d(self.tot_d)
 
         # vectors from the origin to the points along axis_w
         self.w_o[0] = V0
-        self.w_o[1] = self.vec_w(-(alusize_w/2. - 5. - self.bolthead_r_tol))
+        self.w_o[1] = self.vec_w(-(dist_hole/2.))
         self.w_o[2] = self.vec_w(-self.tot_w/2.)
 
         # calculates the position of the origin, and keeps it in attribute pos_o
@@ -163,9 +163,9 @@ class board(Obj3D):
 
         # make the shape of the piece
         cut = []
-        cut_box1 = fcfun.shp_box_dir(box_w = self.tot_w, box_d = alusize_d - 10. + TOL, box_h = alusize_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(0, 0, 1))
+        cut_box1 = fcfun.shp_box_dir(box_w = self.tot_w, box_d = alusize_d - 10. + 4.25 + TOL, box_h = alusize_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(0, 0, 1))
         cut.append(cut_box1)
-        cut_box2 = fcfun.shp_box_dir(box_w = self.tot_w, box_d = alusize_d - 10. + TOL, box_h = alusize_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(4, 0, 1))
+        cut_box2 = fcfun.shp_box_dir(box_w = self.tot_w, box_d = alusize_d - 10. + 4.25 + TOL, box_h = alusize_h, fc_axis_d = self.axis_d, fc_axis_h = self.axis_h, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(4, 0, 1))
         cut.append(cut_box2)
 
         # holes to hold the profile 
@@ -197,4 +197,4 @@ class board(Obj3D):
         self.fco.Placement.Base = self.position
 
 doc = FreeCAD.newDocument()
-shpob_board = board(alusize_d = 30., alusize_w = 50., alusize_h = 30., dist_alu = 31., wall_thick = 16., chmf_r = 1., axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1, pos_d = 3, pos_w = 0, pos = V0)
+shpob_board = board(alusize_d = 30., alusize_w = 50., alusize_h = 30., dist_alu = 31., dist_hole = 36., wall_thick = 13., chmf_r = 1., axis_h = VZ, axis_d = VX, axis_w = None, pos_h = 1, pos_d = 3, pos_w = 0, pos = V0)

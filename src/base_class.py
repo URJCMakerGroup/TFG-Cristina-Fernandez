@@ -299,10 +299,12 @@ class base(Obj3D):
         
             shp_box_init = fcfun.shp_box_dir(box_w = self.tot_w + 2 * self.bolthead_r_tol, box_d = self.tot_d, box_h = wall_thick, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(5, 0, 0))
             cut.append(shp_box_init)
+
+            doc.recompute()
         
             # holes to hold the profile
             for pt_w in (-2, 2):
-                shp_hole1 = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(4, pt_w, 0)) 
+                shp_hole = fcfun.shp_cylcenxtr(r = self.boltshank_r_tol, h = wall_thick, normal = self.axis_h, ch = 0, xtr_top = 1, xtr_bot = 1, pos = self.get_pos_dwh(4, pt_w, 0)) 
                 cut.append(shp_hole)
 
             # holes to hold the Nema Motor Holder
@@ -313,6 +315,7 @@ class base(Obj3D):
 
             shp_cut = fcfun.fuseshplist(cut)
             shp_final = shp_box.cut(shp_cut)
+            doc.recompute()
         else:
             shp_box = fcfun.shp_box_dir(box_w = self.tot_w, box_d = self.tot_d, box_h = self.tot_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.pos_o)
 
@@ -326,6 +329,8 @@ class base(Obj3D):
         
             shp_box_init = fcfun.shp_box_dir(box_w = self.tot_w, box_d = self.tot_d, box_h = wall_thick, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(5, 0, 0))
             cut.append(shp_box_init)
+
+            doc.recompute()
 
             for pt_w in (-4, 4):
                 shp_box_lat = fcfun.shp_box_dir(box_w = 2 * + self.bolthead_r_tol + 4., box_d = self.tot_d, box_h = self.tot_h, fc_axis_h = self.axis_h, fc_axis_d = self.axis_d, cw = 1, cd = 0, ch = 0, pos = self.get_pos_dwh(0, pt_w, 1))
@@ -348,15 +353,18 @@ class base(Obj3D):
 
             shp_cut = fcfun.fuseshplist(cut)
             shp_final = shp_box.cut(shp_cut)
+            doc.recompute()
         
         chmf_reinf_r = min(base_motor_d - base_d, base_h)
         shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_w, fc_pt = self.get_pos_dwh(2, 0, 3), fillet = 0, radius = (chmf_reinf_r - TOL))
+        doc.recompute()
         
         if opt_sides == 0:
             for pt_w in (-3, 3):
                 for pt_h in (0, 13):
                     shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_d, fc_pt = self.get_pos_dwh(0, pt_w, pt_h), fillet = 1, radius = chmf_r)
                 shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_d, fc_pt = self.get_pos_dwh(5, pt_w, 1), fillet = 1, radius = chmf_r)
+            doc.recompute()
         else:
             for pt_w in (-5, 5):
                 for pt_h in (0, 1):
@@ -364,6 +372,7 @@ class base(Obj3D):
             for pt_w in (-3, 3):
                 for pt_h in (1, 13):
                     shp_final = fcfun.shp_filletchamfer_dirpt(shp_final, self.axis_d, fc_pt = self.get_pos_dwh(0, pt_w, pt_h), fillet = 1, radius = chmf_r)
+            doc.recompute()
 
         fuse = []
         fuse.append(shp_final)
@@ -371,7 +380,8 @@ class base(Obj3D):
         shp_box_ref = fcfun.shp_filletchamfer_dirpt(shp_box_ref, self.axis_w, fc_pt = self.get_pos_dwh(5, 0, 2), fillet = 0, radius = 2 * self.bolthead_r - TOL)
         fuse.append(shp_box_ref)
         shp_final_ref = fcfun.fuseshplist(fuse)
-        self.shp = shp_final_ref
+        shp_final = shp_final_ref.removeSplitter()
+        self.shp = shp_final
 
         # Then the Part
         super().create_fco(name)
