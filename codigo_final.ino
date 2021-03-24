@@ -57,7 +57,7 @@ bool direccion = false;                                            //variables p
 bool derecha, izquierda, pulsador = false;                         // variables de lectura del encoder interpretadas
 int volatile estado, estado_ant = 0;                               // Variables del estado (valores de 0 a 5)
 int fila, columna = 0;                                             // Variable de fila en la pantalla lcd
-int i, j = 0;                                                      // contador de medios micropasos
+int i, j, w = 0;                                                   // contador de medios micropasos
 long di_X, df_X = 0L;                                              // variables del ensayo (distancia inicial, distancia final, velocidad)
 long x = 0L ;                                                      // variable de la distancia puntual (en micras)
 int t, tiempo, v, avance = 1;                                      // variable para definir la velocidad
@@ -130,7 +130,7 @@ void inicio()
     lcd.setCursor(16, 2);
     lcd.print("mm/h");
     lcd.setCursor(1, 3);
-    lcd.print("inicio del experimento");
+    lcd.print("Iniciar experimento");
     lcd.setCursor(0, 0);
     lcd.write(byte(0));
     lcd.setCursor(0, 1);
@@ -420,17 +420,17 @@ void DefinicionDeVariables()
       {
         estado = 2;
         estado_ant = 1;
-        di_X = di_X * 1000L;
-        df_X = df_X * 1000L;
+        di_X = di_X * 1000L; // pasar la distancia inicial de mm a micras
+        df_X = df_X * 1000L; // pasar la distancia final de mm a micras
 
         lcd.clear();
         lcd.setCursor(1, 0);
         lcd.print("PREPARANDO");
         lcd.setCursor(1, 1);
         lcd.print("EXPERIMENTO...");
-        tiempo = 1;
-        avance = 375;
-        j = 0;
+        tiempo = 1; //?
+        avance = 375; //?
+        j = 0; //?
       }
       else if (derecha == true )
       {
@@ -465,17 +465,831 @@ void DefinicionDeVariables()
 /////////////////Estado 2: PREPARACIÓN/////////////////
 void preparacion()
 {
-  
+  if ( x / 100 >= di_X )
+  {
+    estado = 4;
+    estado_ant = 3;
+    lcd.clear();
+    lcd.setCursor(1, 0);
+    lcd.print("PAUSA");
+    lcd.setCursor(0, 1);
+    lcd.print("X");
+    lcd.setCursor(0, 3);
+    lcd.print(" CONTINUAR");
+    lcd.setCursor(12, 3);
+    lcd.print("terminar");
+    lcd.setCursor(2, 1);
+    lcd.print(x / 100);
+    lcd.print("/");
+    lcd.print(di_X);
+    lcd.print(" ");
+    lcd.write(byte(2));
+    lcd.print("m");
+    fila = 1;
+  }
+  else
+  {
+    if (pulsador == true)
+    {
+      estado = 4;
+      estado_ant = 2 ;
+      lcd.clear();
+      lcd.setCursor(1, 0);
+      lcd.print("PAUSA");
+      lcd.setCursor(0, 1);
+      lcd.print("X");
+      lcd.setCursor(0, 3);
+      lcd.print(" CONTINUAR");
+      lcd.setCursor(12, 3);
+      lcd.print("terminar");
+      lcd.setCursor(2, 1);
+      lcd.print(x / 100);
+      lcd.print("/");
+      lcd.print(di_X);
+      lcd.print(" ");
+      lcd.write(byte(2));
+      lcd.print("m"); ;
+      fila = 1;
+
+    }
+    else if (fc_fin_X == true)
+    {
+      estado = 4;
+      estado_ant = 0 ;
+      lcd.clear();
+      lcd.setCursor(1, 0);
+      lcd.print("FINAL DE CARRERA");
+      lcd.setCursor(0, 1);
+      lcd.print("ACTIVADO");
+      lcd.setCursor(2, 2);
+      lcd.print(x / 100);
+      lcd.print(" ");
+      lcd.write(byte(2));
+      lcd.print("m"); ;
+      lcd.setCursor(12, 3);
+      lcd.print("TERMINAR");
+      fila = 1;
+    }
+    else
+    {
+      lcd.setCursor(2, 2);
+      lcd.print(x / 100);
+      lcd.print("/");
+      lcd.print(di_X);
+      lcd.print(" ");
+      lcd.setCursor(17, 2);
+      lcd.write(byte(2));
+      lcd.print("m");
+    }
+  }
 }
 
 /////////////////Estado 3: ACCIÓN/////////////////
 void accion()
 {
-  
+  switch (v)
+  {
+    case 1: // velocidad = 1 mm/h
+      for (int w = 0; w < 2544; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 2:
+      for (int w = 0; w < 1272; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 3:
+      for (int w = 0; w < 848; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 4:
+      for (int w = 0; w < 636; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 5:
+      for (int w = 0; w < 508; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 6:
+      for (int w = 0; w < 424; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 7:
+      for (int w = 0; w < 362; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 8:
+      for (int w = 0; w < 318; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 9:
+      for (int w = 0; w < 282; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 10:
+      for (int w = 0; w < 254; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 20:
+      for (int w = 0; w < 126; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 30:
+      for (int w = 0; w < 84; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 40:
+      for (int w = 0; w < 62; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 50:
+      for (int w = 0; w < 50; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 60:
+      for (int w = 0; w < 42; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 70:
+      for (int w = 0; w < 36; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          if (w < 32)
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(208);
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(208);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN,LOW);
+            delayMicroseconds(208);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      break;
+    case 80:
+      for (int w = 0; w < 32; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          digitalWrite(X_STEP_PIN, HIGH);
+          delayMicroseconds(207);
+          digitalWrite(X_STEP_PIN, LOW);
+          delayMicroseconds(207);
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN,LOW);
+          delayMicroseconds(207);
+        }
+      }
+      break;
+    case 90:
+      for (int w = 0; w < 32; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          digitalWrite(X_STEP_PIN, HIGH);
+          delayMicroseconds(184);
+          digitalWrite(X_STEP_PIN, LOW);
+          delayMicroseconds(184);
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN,LOW);
+          delayMicroseconds(184);
+        }
+      }
+      break;
+    default:
+      for (int w = 0; w < 32; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false and fc_inic_X == false)
+        {
+          digitalWrite(X_STEP_PIN, HIGH);
+          delayMicroseconds(165);
+          digitalWrite(X_STEP_PIN, LOW);
+          delayMicroseconds(165);
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN,LOW);
+          delayMicroseconds(165);
+        }
+      }
+      break;
+  }
+}
+
+////////////////Estado 4: PAUSA/////////////////
+void pausa()
+{
+  switch (estado_ant)
+  {
+    case 2:// el programa viene del estado de preparación
+      if (fila == 1)
+      {
+        if (derecha == true or izquierda == true)
+        {
+          fila = 0;
+          lcd.setCursor(0, 3);
+          lcd.print(" continuar");
+          lcd.setCursor(12, 3);
+          lcd.print("TERMINAR");
+        }
+        if (pulsador == true)
+        {
+          estado = 2;
+          estado_ant = 1;
+
+          lcd.clear();
+          lcd.setCursor(1, 0);
+          lcd.print("PREPARANDO");
+          lcd.setCursor(1, 1);
+          lcd.print("EXPERIMENTO...");
+          lcd.setCursor(0, 2);
+          lcd.print("X");
+          j = 0;
+          tiempo = 1;
+          avance = 375;
+          direccion = true;
+        }
+      }
+      else
+      {
+        if (derecha == true or izquierda == true)
+        {
+          fila = 1;
+
+          lcd.setCursor(0, 3);
+          lcd.print(" CONTINUAR");
+          lcd.setCursor(12, 3);
+          lcd.print("terminar");
+        }
+        if (pulsador == true)
+        {
+          estado = 5;
+          estado_ant = 1;
+
+          lcd.clear();
+          lcd.setCursor(1, 0);
+          lcd.print("TERMINANDO");
+          lcd.setCursor(1, 1);
+          lcd.print("EXPERIMENTO...");
+          lcd.setCursor(0, 2);
+          lcd.print("X");
+          j = 0;
+          tiempo = 1;
+          avance = -375;
+          direccion = false;
+        }
+      }
+      break;
+    case 3://el programa viene del etado de accion
+      if (fila == 1)
+      {
+        if (derecha == true or izquierda == true)
+        {
+          fila = 0;
+          lcd.setCursor(0, 3);
+          lcd.print(" continuar");
+          lcd.setCursor(12, 3);
+          lcd.print("TERMINAR");
+        }
+        if (pulsador == true)
+        {
+          estado = 2;
+          estado_ant = 1;
+
+          lcd.clear();
+          lcd.setCursor(1, 0);
+          lcd.print("PREPARANDO");
+          lcd.setCursor(1, 1);
+          lcd.print("EXPERIMENTO...");
+          lcd.setCursor(0, 2);
+          lcd.print("X");
+          j = 0;
+          tiempo = t;
+          if (di_X < df_X)
+          {
+            avance = 375;
+            direccion = true;
+          }
+          else
+          {
+            avance = -375;
+            direccion = false;
+          }
+
+        }
+      }
+      else
+      {
+        if (derecha == true or izquierda == true)
+        {
+          fila = 1;
+
+          lcd.setCursor(0, 3);
+          lcd.print(" CONTINUAR");
+          lcd.setCursor(12, 3);
+          lcd.print("terminar");
+        }
+        if (pulsador == true)
+        {
+          estado = 5;
+          estado_ant = 1;
+
+          lcd.clear();
+          lcd.setCursor(1, 0);
+          lcd.print("TERMINANDO");
+          lcd.setCursor(1, 1);
+          lcd.print("EXPERIMENTO...");
+          lcd.setCursor(0, 2);
+          lcd.print("X");
+          j = 0;
+          tiempo = 1;
+          avance = -375;
+          direccion = false;
+
+        }
+      }
+      break;
+    default://el programa viene del estado de reinicio o ha saltado el dinal de carrera
+      if (pulsador == true)
+      {
+        estado = 5;
+        estado_ant = 1;
+
+        lcd.clear();
+        lcd.setCursor(1, 0);
+        lcd.print("TERMINANDO");
+        lcd.setCursor(1, 1);
+        lcd.print("EXPERIMENTO...");
+        j = 0;
+        tiempo = 1;
+        avance = -375;
+        direccion = false;
+
+
+      }
+      break;
+
+  }
+}
+
+////////////////Estado 5: REINICIO/////////////////
+void reinicio()
+{
+  lcd.setCursor(2, 2);
+  lcd.print(x / 100);
+  lcd.print(" ");
+  lcd.setCursor(17, 2);
+  lcd.write(byte(2));
+  lcd.print("m");
+
+  if ( x / 100 < 20 or fc_inic_X == true)
+  {
+    estado = 0;
+    lcd.clear();
+    lcd.setCursor(2, 0);
+    lcd.print("ENSAYO DE MODELO");
+    lcd.setCursor(3, 1);
+    lcd.print("ANALOGO SIMPLE");
+    lcd.setCursor(0, 3);
+    lcd.print("Iniciar Experimento");
+  }
+  else if (pulsador == true)
+  {
+    estado = 4;
+    estado_ant = 5 ;
+    lcd.clear();
+    lcd.setCursor(1, 0);
+    lcd.print("PAUSA");
+    lcd.setCursor(0, 1);
+    lcd.print("X");
+    lcd.setCursor(12, 3);
+    lcd.print("TERMINAR");
+    lcd.setCursor(2, 1);
+    lcd.print(x);
+    lcd.write(byte(2));
+    lcd.print("m");
+    fila = 1;
+  }
 }
 
 ///////////////////////////////////////////////////
 void loop()
 {
+  btn_en1 = digitalRead(BTN_EN1);
+  btn_en2 = digitalRead(BTN_EN2);
+  btn_enc = digitalRead(BTN_ENC);
+  fc_inic_X = digitalRead(X_MIN_PIN);
+  fc_fin_X  = digitalRead(X_MAX_PIN);
+  digitalWrite(X_DIR_PIN, direccion);
+
+  if (btn_enc == false)//detector de flanco del pulsador/////////////////
+  {
+    i++;
+  }
+  if (i >= 80)
+  {
+    pulsador = true;
+    i = 0;
+    delay(200);
+  }
+  else
+  {
+    pulsador = false;
+  }
+  if (btn_en1 != btn_en1_prev || btn_en2 != btn_en2_prev)
+  {
+    if ( btn_en2 == false & btn_en1 == false & btn_en2_prev == true & btn_en1_prev == false)
+    {
+      derecha = true;
+      izquierda = false;
+    }
+    else if ( btn_en2 == false & btn_en1 == false & btn_en2_prev == false & btn_en1_prev == true )
+    {
+      derecha = false;
+      izquierda = true;
+    }
+    else
+    {
+      derecha = false;
+      izquierda = false;
+    }
+  }
+  else
+  {
+    derecha = false;
+    izquierda = false;
+  }
+  btn_en1_prev = btn_en1;
+  btn_en2_prev = btn_en2;
   
+  switch (estado) // gestion de estados
+  {
+    case 1:
+      DefinicionDeVariables();
+      break;
+    case 2:
+      preparacion();
+      break;
+    case 3:
+      accion();
+      break;
+    case 4:
+      pausa();
+      break;
+    case 5:
+      reinicio();
+      break;
+    default:
+      inicio();
+      break;
+  }
 }
