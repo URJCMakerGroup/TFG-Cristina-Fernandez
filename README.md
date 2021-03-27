@@ -13,15 +13,16 @@
 
 - ### [Soporte Eje Y](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/base_class.py)
 
-![Soporte Eje Y](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/base_class_README.PNG)
+![Soporte Eje Y](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/base_class_README.PNG) </center> <style = "zoom: 50%"/>
 
 - ### [Soporte motor](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/src/NemaMotorHolder_class.py)
 
-  ![Soporte motor](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/NemaMotorHolder_class_README.PNG)
+
+![Soporte motor](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/NemaMotorHolder_class_README.PNG) </center><style = "zoom: 50%"/>
 
 - ### [Soporte tuerca husillo](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/board_class.py)
 
-![Soporte tuerca husillo](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/board_class_README.PNG)
+![Soporte tuerca husillo](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/board_class_README.PNG) </center><style = "zoom: 50%"/>
 
 
 
