@@ -11,15 +11,17 @@
 
 ## Piezas:
 
-- ### [Base](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/base_class.py)
+- ### [Soporte Eje Y](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/base_class.py)
 
-![base_class](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/img/base_class.PNG)
+![Soporte Eje Y](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/base_class_TFG.PNG)
 
-- ### [Board](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/board_class.py)
+- ### [Soporte motor](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/src/NemaMotorHolder_class.py)
 
-[](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/img/board_class.PNG)
+  ![Soporte motor](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/NemaMotorHolder_class.PNG)
 
-![board_class](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/img/board_class.PNG)
+- ### [Soporte tuerca husillo](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/board_class.py)
+
+![Soporte tuerca husillo](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/board_class_definitivo.PNG)
 
 
 
