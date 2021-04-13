@@ -3,7 +3,7 @@
 #include <LiquidCrystal.h>
 LiquidCrystal lcd(16, 17, 23, 25, 27, 29);
 
-//Pins de la shield
+//Pines de la shield
 #define LCD_PINS_RS 16      // LCD control conectado a GADGETS3D  shield LCDRS
 #define LCD_PINS_ENABLE 17  // LCD enable pin conectado a GADGETS3D shield LCDE
 #define LCD_PINS_D4 23      // LCD signal pin, conectado a GADGETS3D shield LCD4
@@ -68,15 +68,20 @@ bool direccion = false;                                            //false es ha
 bool derecha, izquierda, pulsador = false;                         // variables de lectura del encoder interpretadas
 int volatile estado, estado_ant = 0;                               // Variables del estado (valores de 0 a 5)
 int fila, columna = 0;                                             // Variable de fila en la pantalla lcd
-int i, j, w = 0;                                                   // contadores
+int i = 0;                                                         // contador de pulsos
+int j = 0;                                                         // contador
+int w = 0;                                                         // contador de micropasos medios
+int w_final = 0;                                                   // numero de medios micropasos en función de la velocidad
+int t_espera = 0;                                                  // tiempo de espera en función de la velocidad
 int di_X, df_X = 0;                                                // variables del ensayo (distancia inicial, distancia final)en mm
-int x_eeprom = 0;                                                   // variable de la posicion guardada en la eeprom
-int x = 0;          // posicion actual del puente movil 
+int x_eeprom = 0;                                                  // variable de la posicion guardada en la eeprom
+int x = 0;                                                       // posicion actual del puente movil
+long x_nm = 0L;                                                     // posicion actual del puente movil en nanometros
 int v, avance = 1;                                                 // variable para definir la velocidad
 int L = 400;                                                       // l es la longitud del husillo, por lo que se trata de la distancia máxima que se puede llevar a cabo
-int DIR_EEP = 1;
+int DIR_EEP = 1;                                                   // direccion de la memoria eeprom
 
-void setup() 
+void setup()
 {
   pinMode(BTN_EN1, INPUT_PULLUP);     // Encoder 1 ¿es input o input_pullup?
   pinMode(BTN_EN2, INPUT_PULLUP);     // Encoder 2 ¿es input o input_pullup?
@@ -95,23 +100,78 @@ void setup()
   lcd.createChar(0, empty);   // 0: numero de carácter; empty: matriz que contiene los pixeles del carácter
   lcd.createChar(1, full);    // 1: numero de carácter; full: matriz que contiene los pixeles del carácter
   lcd.createChar(2, micro);   // 2: numero de carácter; micro: matriz que contiene los pixeles del carácter
-  lcd.createChar(3, arrow);   // 3: número de carácter; arrow: matriz que contiene los pixeles del carácter 
+  lcd.createChar(3, arrow);   // 3: número de carácter; arrow: matriz que contiene los pixeles del carácter
+}
+
+void leer_encoder()
+{
+  btn_en1 = digitalRead(BTN_EN1);
+  btn_en2 = digitalRead(BTN_EN2);
+  fc_inic_X = digitalRead(X_MIN_PIN);
+  fc_fin_X  = digitalRead(X_MAX_PIN);
+  digitalWrite(X_DIR_PIN, direccion);
+
+  if (btn_en1 != btn_en1_prev || btn_en2 != btn_en2_prev)
+  {
+    if (btn_en2 == false & btn_en1 == false & btn_en2_prev == true & btn_en1_prev == false)
+    {
+      derecha = true;
+      izquierda = false;
+    }
+    else if ( btn_en2 == false & btn_en1 == false & btn_en2_prev == false & btn_en1_prev == true )
+    {
+      derecha = false;
+      izquierda = true;
+    }
+    else
+    {
+      derecha = false;
+      izquierda = false;
+    }
+  }
+  else
+  {
+    derecha = false;
+    izquierda = false;
+  }
+  btn_en1_prev = btn_en1;
+  btn_en2_prev = btn_en2;
+}
+
+void leer_pulso()
+{
+  btn_enc = digitalRead(BTN_ENC);
+
+  if (btn_enc == false) //Detector de flanco del pulsador
+  {
+    i++;
+  }
+  if (i >= 80)
+  {
+    pulsador = true;
+    i = 0;
+    delay(200);
+  }
+  else
+  {
+    pulsador = false;
+  }
 }
 
 /////////////////Estado 0: INICIO/////////////////
-void comprobar_pos_eep()  
+void comprobar_pos_eep()
 {
   EEPROM.get(DIR_EEP, x_eeprom);   //Leer memoria EEPROM direccion 0
   fc_inic_X = digitalRead(X_MIN_PIN);
   fc_fin_X  = digitalRead(X_MAX_PIN);
-        
+
   if (fc_inic_X == true)  // estamos en x = 0
   {
     // se puede comprobar que fc_fin_X no esta true porque sería un error
     if (x_eeprom != 0)
     {
       x_eeprom = 0;
-      EEPROM.put(DIR_EEP, x_eeprom); // como la x_eeprom era incorrecta lo actualizamos con el final de carrera 
+      EEPROM.put(DIR_EEP, x_eeprom); // como la x_eeprom era incorrecta lo actualizamos con el final de carrera
     }
   }
   else if (fc_fin_X == true)  // estamos en x = l
@@ -119,7 +179,7 @@ void comprobar_pos_eep()
     if (x_eeprom != L)
     {
       x_eeprom = L;
-      EEPROM.put(DIR_EEP, x_eeprom); // como la x_eeprom era incorrecta lo actualizamos con el final de carrera 
+      EEPROM.put(DIR_EEP, x_eeprom); // como la x_eeprom era incorrecta lo actualizamos con el final de carrera
     }
   }
   else if (x_eeprom == 0 || x_eeprom == L)  // la eeprom me dice que estoy a 0 pero el final de carrera no esta presionado (EPROMM incorrecto)
@@ -129,20 +189,21 @@ void comprobar_pos_eep()
   }
 }
 
-void pantalla_inicio() 
+void pantalla_inicio()
 {
   lcd.clear();
   lcd.setCursor(2, 0);    // posiciona el cursor en la columna 1 fila 0
   lcd.print("ENSAYO DE MODELO");
   lcd.setCursor(3, 1);    // posiciona el cursor en la columna 1 fila 1
   lcd.print("ANALOGO SIMPLE");
-  lcd.setCursor(0, 2);
-  lcd.print("Pos actual:");
+  lcd.setCursor(2, 2);
+  lcd.print("Dist actual:");
+  lcd.print(" ");
   if (x_eeprom < 0)
   {
     lcd.print("?");
   }
-  else 
+  else
   {
     lcd.print(x_eeprom);
     lcd.print("mm");
@@ -158,7 +219,7 @@ void menu()
   di_X = 0;
   df_X = 0;
   v = 1;
-  x = 0;
+  x = x_eeprom;
 
   lcd.clear();
   lcd.setCursor(1, 0);
@@ -466,15 +527,13 @@ void DefinicionDeVariables()
     default: //iniciar experimento
       if (pulsador == true)
       {
-        estado = 2;
-        estado_ant = 1;
-
-        lcd.clear();
-        lcd.setCursor(1, 0);
-        lcd.print("PREPARANDO");
-        lcd.setCursor(1, 1);
-        lcd.print("EXPERIMENTO...");
-        delay(5000);
+        estado = 3;
+        //        lcd.clear();
+        //        lcd.setCursor(1, 0);
+        //        lcd.print("PREPARANDO");
+        //        lcd.setCursor(1, 1);
+        //        lcd.print("EXPERIMENTO...");
+        //        delay(5000);
       }
       else if (derecha == true )
       {
@@ -506,76 +565,390 @@ void DefinicionDeVariables()
   }
 }
 
-
-void leer_encoder()
+/////////////////Estado 3: MOVER PUENTE MÓVIL/////////////////
+void reinicio()
 {
-    btn_en1 = digitalRead(BTN_EN1);
-    btn_en2 = digitalRead(BTN_EN2);
-    btn_enc = digitalRead(BTN_ENC);
-    fc_inic_X = digitalRead(X_MIN_PIN);
-    fc_fin_X  = digitalRead(X_MAX_PIN);
-    digitalWrite(X_DIR_PIN, direccion);
+  lcd.clear();
+  lcd.setCursor(1, 0);
+  lcd.print("MOVIENDO A");
+  lcd.setCursor(1, 1);
+  lcd.print("CERO");
 
-    if (btn_enc == false) //Detector de flanco del pulsador
+  direccion = false;
+  digitalWrite(X_DIR_PIN, direccion);
+  while (fc_inic_X == false)
+  {
+    for (int w = 0; w < 32; w++)
     {
-      i++;
-    }
-    if (i >= 80)
-    {
-      pulsador = true;
-      i = 0;
-      delay(200);
-    }
-    else
-    {
-      pulsador = false;
-    }
-    if (btn_en1 != btn_en1_prev || btn_en2 != btn_en2_prev)
-    {
-      if ( btn_en2 == false & btn_en1 == false & btn_en2_prev == true & btn_en1_prev == false)
+      fc_inic_X = digitalRead(X_MIN_PIN);
+      fc_fin_X  = digitalRead(X_MAX_PIN);
+      if (fc_fin_X == false and fc_inic_X == false)
       {
-        derecha = true;
-        izquierda = false;
-      }
-      else if ( btn_en2 == false & btn_en1 == false & btn_en2_prev == false & btn_en1_prev == true )
-      {
-        derecha = false;
-        izquierda = true;
+        if (w % 2 == 0) //0: par 1:impar
+        {
+          digitalWrite(X_STEP_PIN, HIGH);
+          delayMicroseconds(6);
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+          delayMicroseconds(6);
+        }
       }
       else
       {
-        derecha = false;
-        izquierda = false;
+        digitalWrite(X_STEP_PIN, LOW);
       }
     }
-    else
-    {
-      derecha = false;
-      izquierda = false;
-    }
-    btn_en1_prev = btn_en1;
-    btn_en2_prev = btn_en2;
+  }
+  x = 0;
 }
 
-void leer_pulso()
+void mover_inicio()
 {
-    btn_enc = digitalRead(BTN_ENC);
+  lcd.clear();
+  lcd.setCursor(1, 0);
+  lcd.print("MOVIENDO A");
+  lcd.setCursor(1, 1);
+  lcd.print("INICIO");
+  lcd.setCursor(1, 2);
+  lcd.print("x =");
+  lcd.print(" ");
 
-    if (btn_enc == false) //Detector de flanco del pulsador
+  //x = x_eeprom;
+  x_nm = x * 1000000L; //calculo en nanometros, por 1 millon
+
+  if (x < di_X)
+  {
+    direccion = true;
+    digitalWrite(X_DIR_PIN, direccion);
+    while (x < di_X)
     {
-      i++;
+      for (int w = 0; w < 32; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_fin_X == false)
+        {
+          if (w % 2 == 0) //0: par 1:impar
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(6);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(6);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      x_nm = x_nm + 147;
+      x = x_nm / 1000000;
+      lcd.setCursor(6, 2);
+      lcd.print(x);
+      lcd.print(" mm");
     }
-    if (i >= 80)
+  }
+  else
+  {
+    direccion = false;
+    digitalWrite(X_DIR_PIN, direccion);
+    while (x > di_X)
     {
-      pulsador = true;
-      i = 0;
-      delay(200);
+      for (int w = 0; w < 32; w++)
+      {
+        fc_inic_X = digitalRead(X_MIN_PIN);
+        fc_fin_X  = digitalRead(X_MAX_PIN);
+        if (fc_inic_X == false)
+        {
+          if (w % 2 == 0) //0: par 1:impar
+          {
+            digitalWrite(X_STEP_PIN, HIGH);
+            delayMicroseconds(6);
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN, LOW);
+            delayMicroseconds(6);
+          }
+        }
+        else
+        {
+          digitalWrite(X_STEP_PIN, LOW);
+        }
+      }
+      x_nm = x_nm - 147;
+      x = x_nm / 1000000;
+      lcd.setCursor(6, 2);  //columna 6, fila 2
+      lcd.print(x);
+      lcd.print(" mm");
     }
-    else
-    {
-      pulsador = false;
-    }
+  }
+  x = di_X;
 }
+
+void inicio_experimento()
+{
+  lcd.clear();
+  lcd.setCursor(1, 0);
+  lcd.print("REALIZANDO");
+  lcd.setCursor(1, 1);
+  lcd.print("EXPERIMENTO");
+  lcd.setCursor(1, 2);
+  lcd.print("x =");
+  lcd.print(" ");
+
+  if (di_X < df_X)
+  {
+    direccion = true;
+    digitalWrite(X_DIR_PIN, direccion);
+  }
+  else
+  {
+    direccion = false;
+    digitalWrite(X_DIR_PIN, direccion);
+  }
+
+  switch (v)
+  {
+    case 1: // velocidad = 1 mm/h
+      w_final = 2544;
+      t_espera = 208;
+      break;
+    case 2:
+      w_final = 1272;
+      t_espera = 208;
+      break;
+    case 3:
+      w_final = 848;
+      t_espera = 208;
+      break;
+    case 4:
+      w_final = 636;
+      t_espera = 208;
+      break;
+    case 5:
+      w_final = 508;
+      t_espera = 208;
+      break;
+    case 6:
+      w_final = 424;
+      t_espera = 208;
+      break;
+    case 7:
+      w_final = 362;
+      t_espera = 208;
+      break;
+    case 8:
+      w_final = 318;
+      t_espera = 208;
+      break;
+    case 9:
+      w_final = 282;
+      t_espera = 208;
+      break;
+    case 10:
+      w_final = 254;
+      t_espera = 208;
+      break;
+    case 20:
+      w_final = 126;
+      t_espera = 208;
+      break;
+    case 30:
+      w_final = 84;
+      t_espera = 208;
+      break;
+    case 40:
+      w_final = 62;
+      t_espera = 208;
+      break;
+    case 50:
+      w_final = 50;
+      t_espera = 208;
+      break;
+    case 60:
+      w_final = 42;
+      t_espera = 208;
+      break;
+    case 70:
+      w_final = 36;
+      t_espera = 208;
+      break;
+    case 80:
+      w_final = 32;
+      t_espera = 207;
+      break;
+    case 90:
+      w_final = 32;
+      t_espera = 184;
+      break;
+    default:
+      w_final = 32;
+      t_espera = 165;
+      break;
+  }
+
+  //x = x_eeprom;
+  x_nm = x * 1000000L; //calculo en nanometros, por 1 millon
+
+  if (x < df_X)
+  {
+    while (x < df_X)
+    {
+      if (v < 80)
+      {
+        for (int w = 0; w < w_final; w++)
+        {
+          fc_inic_X = digitalRead(X_MIN_PIN);
+          fc_fin_X  = digitalRead(X_MAX_PIN);
+          if (fc_fin_X == false)
+          {
+            if (w < 32)
+            {
+              if (w % 2 == 0) //0: par 1:impar
+              {
+                digitalWrite(X_STEP_PIN, HIGH);
+                delayMicroseconds(t_espera);   //t_espera es el tiempo que tarda un medio micropaso
+              }
+              else
+              {
+                digitalWrite(X_STEP_PIN, LOW);  //hay que dividir 416 para estar medio tiempo en HIGH y medio tiempo en LOW
+                delayMicroseconds(t_espera);
+              }
+            }
+            else
+            {
+              digitalWrite(X_STEP_PIN, LOW);
+              delayMicroseconds(t_espera);
+            }
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN, LOW);
+          }
+        }
+        x_nm = x_nm + 147;
+        x = x_nm / 1000000;
+        lcd.setCursor(6, 2);
+        lcd.print(x);
+        lcd.print(" mm");
+      }
+      else
+      {
+        for (int w = 0; w < w_final; w++)
+        {
+          fc_inic_X = digitalRead(X_MIN_PIN);
+          fc_fin_X  = digitalRead(X_MAX_PIN);
+          if (fc_fin_X == false)
+          {
+            if (w % 2 == 0) //0: par 1:impar
+            {
+              digitalWrite(X_STEP_PIN, HIGH);
+              delayMicroseconds(t_espera);
+            }
+            else
+            {
+              digitalWrite(X_STEP_PIN, LOW);
+              delayMicroseconds(t_espera);
+            }
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN, LOW);
+          }
+        }
+        x_nm = x_nm + 147;
+        x = x_nm / 1000000;
+        lcd.setCursor(6, 2);
+        lcd.print(x);
+        lcd.print(" mm");
+      }
+    }
+  }
+  else
+  {
+    while (x > df_X)
+    {
+      if (v < 80)
+      {
+        for (int w = 0; w < w_final; w++)
+        {
+          fc_inic_X = digitalRead(X_MIN_PIN);
+          fc_fin_X  = digitalRead(X_MAX_PIN);
+          if (fc_inic_X == false)
+          {
+            if (w < 32)
+            {
+              if (w % 2 == 0) //0: par 1:impar
+              {
+                digitalWrite(X_STEP_PIN, HIGH);
+                delayMicroseconds(t_espera);   //t_espera es el tiempo que tarda un medio micropaso
+              }
+              else
+              {
+                digitalWrite(X_STEP_PIN, LOW);  //hay que dividir 416 para estar medio tiempo en HIGH y medio tiempo en LOW
+                delayMicroseconds(t_espera);
+              }
+            }
+            else
+            {
+              digitalWrite(X_STEP_PIN, LOW);
+              delayMicroseconds(t_espera);
+            }
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN, LOW);
+          }
+        }
+        x_nm = x_nm - 147;
+        x = x_nm / 1000000;
+        lcd.setCursor(6, 2);
+        lcd.print(x);
+        lcd.print(" mm");
+      }
+      else
+      {
+        for (int w = 0; w < w_final; w++)
+        {
+          fc_inic_X = digitalRead(X_MIN_PIN);
+          fc_fin_X  = digitalRead(X_MAX_PIN);
+          if (fc_inic_X == false)
+          {
+            if (w % 2 == 0) //0: par 1:impar
+            {
+              digitalWrite(X_STEP_PIN, HIGH);
+              delayMicroseconds(t_espera);
+            }
+            else
+            {
+              digitalWrite(X_STEP_PIN, LOW);
+              delayMicroseconds(t_espera);
+            }
+          }
+          else
+          {
+            digitalWrite(X_STEP_PIN, LOW);
+          }
+        }
+        x_nm = x_nm - 147;
+        x = x_nm / 1000000;
+        lcd.setCursor(6, 2);
+        lcd.print(x);
+        lcd.print(" mm");
+      }
+    }
+  }
+  x = df_X;
+  x_eeprom = x;
+  EEPROM.put(DIR_EEP, x_eeprom);
+}
+
 void loop ()
 {
   switch (estado)
@@ -584,7 +957,7 @@ void loop ()
       comprobar_pos_eep();
       pantalla_inicio();
       estado = 1;
-    break;
+      break;
     case 1: // esperar al pulsador sin hacer nada
       leer_pulso();
       if (pulsador == true)
@@ -594,8 +967,43 @@ void loop ()
       }
       break;
     case 2:
+      leer_pulso();
       leer_encoder();
       DefinicionDeVariables();
+      break;
+    case 3:
+      x_eeprom = -1;
+      EEPROM.put(DIR_EEP, x_eeprom);
+      if (x_eeprom < 0)
+      {
+        reinicio();
+        if (x_eeprom != di_X)
+        {
+          mover_inicio();
+          inicio_experimento();
+          estado = 0;
+        }
+        else
+        {
+          inicio_experimento();
+          estado = 0;
+        }
+      }
+      else
+      {
+        if (x_eeprom != di_X)
+        {
+          mover_inicio();
+          inicio_experimento();
+          estado = 0;
+        }
+        else
+        {
+          inicio_experimento();
+          estado = 0;
+        }
+      }
+      break;
     default:
       break;
   }
