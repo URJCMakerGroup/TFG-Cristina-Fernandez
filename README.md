@@ -1,5 +1,7 @@
 # TFG Cristina Fernández
 
+## Project documentation in wiki: https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/wiki
+
 ## Organización de las carpetas:
 
 - FreeCAD: archivo creado por FreeCAD
