@@ -2,6 +2,16 @@
 
 ## Project documentation in wiki: https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/wiki
 
+## License
+
+Hardware License: [CERN-OHL-S 2.0](cern_ohl_s_v2.txt)
+
+Software License: [LGPL 3.0 or later](License.md)
+
+Documentation License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+
+![licence summary](img/oshw_lic.png)
+
 ## Organización de las carpetas:
 
 - FreeCAD: archivo creado por FreeCAD
