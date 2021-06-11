@@ -8,9 +8,13 @@ Hardware License: [CERN-OHL-S 2.0](cern_ohl_s_v2.txt)
 
 Software License: [LGPL 3.0 or later](License.md)
 
-Documentation License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+Documentation License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ![licence summary](img/oshw_lic.png)
+
+![ES000021](Images/Small/OSHW_mark_ES000021.png )
+
+This project has been certified as [open source hardware](https://certification.oshwa.org/es000021.html) by the [Open Source Hardware Association](https://www.oshwa.org/). 
 
 ## Organización de las carpetas:
 
