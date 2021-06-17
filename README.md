@@ -19,8 +19,9 @@ This project has been certified as [open source hardware](https://certification.
 ## Organización de las carpetas:
 
 - FreeCAD: archivo creado por FreeCAD
+- Images: Imágenes de la documentación
 - comps: copia del reposiorio fcad-comps de Felipe Machado
-- img: imágenes de las piezas
+- img: imágenes de las piezas diseñadas en 3D
 - src: código fuente
 - step: archivo de modelo 3D formateado en STEP
 - stl: archivo de modelo 3D en formato estándar que puede ser leído epor múltiples aplicaciones CAD
@@ -29,16 +30,23 @@ This project has been certified as [open source hardware](https://certification.
 
 - ### [Soporte Eje Y](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/base_class.py)
 
-![Soporte Eje Y](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/Small/base_class_TFG.PNG) 
+  <p align="center">
+    <img src="https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/Small/base_class_TFG.PNG">
+  </p>
+
 
 - ### [Soporte motor](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/src/NemaMotorHolder_class.py)
 
 
-![Soporte motor](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/Small/NemaMotorHolder_class.PNG) 
+<p align="center">
+  <img src="https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/Small/NemaMotorHolder_class.PNG">
+</p>
 
 - ### [Soporte tuerca husillo](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/board_class.py)
 
-![Soporte tuerca husillo](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/Small/board_class_definitivo.PNG) 
+<p align="center">
+  <img src="https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/Small/board_class_definitivo.PNG">
+</p>
 
 
 
