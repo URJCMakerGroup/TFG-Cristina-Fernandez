@@ -29,16 +29,16 @@ This project has been certified as [open source hardware](https://certification.
 
 - ### [Soporte Eje Y](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/base_class.py)
 
-![Soporte Eje Y](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/base_class_README.PNG) </center>
+![Soporte Eje Y](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/Small/base_class_TFG.PNG) 
 
 - ### [Soporte motor](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/src/NemaMotorHolder_class.py)
 
 
-![Soporte motor](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/NemaMotorHolder_class_README.PNG) </center>
+![Soporte motor](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/Small/NemaMotorHolder_class.PNG) 
 
 - ### [Soporte tuerca husillo](https://github.com/URJCMakerGroup/TFG---Cristina---Fernandez/blob/main/src/board_class.py)
 
-![Soporte tuerca husillo](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/board_class_README.PNG) </center>
+![Soporte tuerca husillo](https://github.com/URJCMakerGroup/TFG-Cristina-Fernandez/blob/main/img/Small/board_class_definitivo.PNG) 
 
 
 
